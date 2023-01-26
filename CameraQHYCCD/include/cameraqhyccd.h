@@ -25,8 +25,11 @@ public:
 
     bool connect(streamMode mode);
 
+    bool getControlMinMaxStep(cameraControls control, double *min,double *max,double *step);
+
     bool disconnect();
 
+    static bool ReleaseSDK();
 };
 
 #endif // CAMERAQHYCCD_H

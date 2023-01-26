@@ -65,7 +65,32 @@ bool CameraQHYCCD::connect(streamMode mode) {
     else
         return false;
 
+    ret = SetQHYCCDBinMode(camhandle,1,1);
+    if(ret != QHYCCD_SUCCESS)
+        return false;
+
     return true;
 }
+
+bool CameraQHYCCD::getControlMinMaxStep(cameraControls control, double *min,double *max,double *step) {
+    int ret = IsQHYCCDControlAvailable(camhandle,(CONTROL_ID)control);
+    if(ret != QHYCCD_SUCCESS)
+        return false;
+    ret = GetQHYCCDParamMinMaxStep(camhandle,(CONTROL_ID)control,min,max,step);
+    return (ret == QHYCCD_SUCCESS);
+}
+
+bool CameraQHYCCD::disconnect() {
+    int ret = CloseQHYCCD(camhandle);
+    return (ret == QHYCCD_SUCCESS);
+}
+
+bool CameraQHYCCD::ReleaseSDK() {
+    int ret = ReleaseQHYCCDResource();
+    isSDK_Inited = false;
+    return (ret == QHYCCD_SUCCESS);
+}
+
+
 
 
