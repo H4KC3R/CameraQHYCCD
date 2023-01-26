@@ -26,8 +26,6 @@ int main()
     }
     else
         cout << "Camera finded: " << num << endl;
-
-    end:
     system("pause");
     return 0;
 }
