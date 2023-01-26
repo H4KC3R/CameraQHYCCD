@@ -5,31 +5,16 @@
 
 struct CAM
 {
-    uint32_t gain;
-    uint32_t offset;
-    uint32_t exptime;
-    uint32_t bin;
-    uint32_t imagew;
-    uint32_t maximgw;
-    uint32_t imageh;
-    uint32_t maximgh;
-    uint32_t bpp;
-    uint32_t channels;
-    double chipw;
-    double chiph;
-    double pixelw;
-    double pixelh;
-    int length;
-    bool getData;
-    bool quit;
-    bool hasquit;
-    bool canget;
-    bool canTransferData;
+    char model[12];         // camera model
+    bool isMono;            // mono or color
 
-    char model[12];
-
-    unsigned char *ImgData;
-    unsigned char *ImgDataSave;
+    double chipw;           // chip size width
+    double chiph;           // chip size height
+    double pixelw;          // chip pixel size width
+    double pixelh;          // chip pixel size height
+    uint32_t maximgw;       // maximum chip output image width
+    uint32_t maximgh;       // maximum chip output image height
+    uint32_t bpp;           // chip pixel depth
 };
 
 

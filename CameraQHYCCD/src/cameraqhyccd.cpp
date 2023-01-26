@@ -30,7 +30,7 @@ int CameraQHYCCD::searchCamera(){
     return num;
 }
 
-bool getID(int num, char* id){
+bool CameraQHYCCD::getID(int num, char* id){
     int ret = GetQHYCCDId(num,id);
     return (ret == QHYCCD_SUCCESS);
 }
@@ -44,6 +44,28 @@ bool CameraQHYCCD::connect(streamMode mode) {
     if(ret != QHYCCD_SUCCESS)
         return false;
 
+    ret = IsQHYCCDControlAvailable(camhandle,CAM_COLOR);
+    if(ret == BAYER_GB || ret == BAYER_GR || ret == BAYER_BG ||ret == BAYER_RG)
+        cam.isMono = false;
+    else
+        cam.isMono = true;
+
+    uint32_t imagew, imageh, bpp;
+    double chipw, chiph, pixelw, pixelh;
+
+    ret = GetQHYCCDChipInfo(camhandle,&chipw,&chiph,&imagew,&imageh,&pixelw,&pixelh,&bpp);
+    if(ret == QHYCCD_SUCCESS){
+        cam.chipw = chipw;
+        cam.chiph = chiph;
+        cam.pixelw = pixelw;
+        cam.pixelh = pixelh;
+        cam.maximgw = imagew;
+        cam.maximgh = imageh;
+    }
+    else
+        return false;
+
+    return true;
 }
 
 
