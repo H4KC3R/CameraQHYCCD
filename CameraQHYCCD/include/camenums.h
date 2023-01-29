@@ -19,4 +19,6 @@ enum cameraControls {
     bit16_depth         = 35        //!< 16bit depth(+)
 };
 
+enum 
+
 #endif // CAMENUMS_H

@@ -12,6 +12,7 @@ private:
     static bool isSDK_Inited;
     bool connected = false;
     CAM cam;
+
 public:
     CameraQHYCCD(char *id);
 
@@ -25,7 +26,23 @@ public:
 
     bool connect(streamMode mode);
 
-    bool getControlMinMaxStep(cameraControls control, double *min,double *max,double *step);
+    bool getControlMinMaxStep(cameraControls control, double *min, double *max, double *step);
+
+    bool setImageSize(uint32_t x, uint32_t y, uint32_t xsize, uint32_t ysize);
+
+    bool getImageSize(uint32_t* startX, uint32_t* startY, uint32_t* sizeX, uint32_t* sizeY);
+
+    bool setBitsMode();
+
+    bool getBitsMode();
+
+    bool setGain(double value);
+
+    bool getGain(double* value);
+
+    bool setExposure(double ms);
+
+    bool getExposure(double* ms);
 
     bool disconnect();
 

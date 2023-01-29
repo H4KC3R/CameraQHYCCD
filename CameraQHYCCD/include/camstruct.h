@@ -15,6 +15,9 @@ struct CAM
     uint32_t maximgw;       // maximum chip output image width
     uint32_t maximgh;       // maximum chip output image height
     uint32_t bpp;           // chip pixel depth
+
+    uint8_t wbin;
+    uint8_t hbin;
 };
 
 
