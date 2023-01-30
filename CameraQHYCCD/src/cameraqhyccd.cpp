@@ -69,7 +69,7 @@ bool CameraQHYCCD::connect(streamMode mode) {
 
     cam.wbin = 1;
     cam.hbin = 1;
-    ret = SetQHYCCDBinMode(camhandle, wbin, hbin);
+    ret = SetQHYCCDBinMode(camhandle, cam.wbin, cam.hbin);
     if(ret != QHYCCD_SUCCESS)
         return false;
 
@@ -85,7 +85,7 @@ bool CameraQHYCCD::getControlMinMaxStep(cameraControls control, double *min, dou
 }
 
 bool CameraQHYCCD::setImageSize(uint32_t x, uint32_t y, uint32_t xsize, uint32_t ysize) {
-    int ret = SetQHYCCDResolution(camhandle, x, y, imagew/cam.wbin,imageh/cam.hbin);
+    int ret = SetQHYCCDResolution(camhandle, x, y, xsize/cam.wbin, ysize/cam.hbin);
     return (ret == QHYCCD_SUCCESS);
 }
 
@@ -95,23 +95,22 @@ bool CameraQHYCCD::getImageSize(uint32_t* startX, uint32_t* startY, uint32_t* si
 }
 
 bool CameraQHYCCD::setGain(double value) {
-    ret = SetQHYCCDParam(camhandle, CONTROL_GAIN, (double)value);
+    int ret = SetQHYCCDParam(camhandle, CONTROL_GAIN, value);
+    return (ret == QHYCCD_SUCCESS);
 }
 
-bool CameraQHYCCD::getGain(double* value) {
-
+double CameraQHYCCD::getGain(void) {
+    return GetQHYCCDParam(camhandle, CONTROL_GAIN);
 }
 
 bool CameraQHYCCD::setExposure(double ms) {
-    int ret = SetQHYCCDParam(camhandle, exposure, ms * 1000.0);
+    int ret = SetQHYCCDParam(camhandle, CONTROL_EXPOSURE, ms * 1000.0);
     return (ret == QHYCCD_SUCCESS);
-
 }
 
-bool CameraQHYCCD::getExposure(double* ms) {
-
+double CameraQHYCCD::getExposure(void) {
+    return (GetQHYCCDParam(camhandle, CONTROL_EXPOSURE) * 1000.0);
 }
-
 
 bool CameraQHYCCD::disconnect() {
     int ret = CloseQHYCCD(camhandle);

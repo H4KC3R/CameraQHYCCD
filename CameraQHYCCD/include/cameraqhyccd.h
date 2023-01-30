@@ -38,11 +38,11 @@ public:
 
     bool setGain(double value);
 
-    bool getGain(double* value);
+    double getGain(void);
 
     bool setExposure(double ms);
 
-    bool getExposure(double* ms);
+    double getExposure(void);
 
     bool disconnect();
 
