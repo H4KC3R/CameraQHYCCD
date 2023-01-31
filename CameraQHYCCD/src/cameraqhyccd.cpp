@@ -94,6 +94,25 @@ bool CameraQHYCCD::getImageSize(uint32_t* startX, uint32_t* startY, uint32_t* si
     return (ret == QHYCCD_SUCCESS);
 }
 
+bool CameraQHYCCD::setImageBitMode(bitMode bit){
+    if(bit == bit8) {
+        int ret = IsQHYCCDControlAvailable(camhandle, CAM_8BITS);
+        if(ret == QHYCCD_SUCCESS)
+            ret = SetQHYCCDBitsMode(camhandle, 8);
+        return (ret == QHYCCD_SUCCESS);
+    }
+    else {
+        int ret = IsQHYCCDControlAvailable(camhandle, CAM_16BITS);
+        if(ret == QHYCCD_SUCCESS)
+            ret = SetQHYCCDBitsMode(camhandle, 16);
+        return (ret == QHYCCD_SUCCESS);
+    }
+}
+
+uint32_t CameraQHYCCD::getImageBitMode(){
+    return ((uint32_t)GetQHYCCDParam(camhandle, CONTROL_TRANSFERBIT));
+}
+
 bool CameraQHYCCD::setGain(double value) {
     int ret = SetQHYCCDParam(camhandle, CONTROL_GAIN, value);
     return (ret == QHYCCD_SUCCESS);

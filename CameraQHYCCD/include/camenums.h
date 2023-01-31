@@ -10,13 +10,20 @@ enum cameraControls {
     gain                = 6,        //!< camera gain
     offset              = 7,        //!< camera offset
     exposure            = 8,        //!< expose time (us)
-    speed               = 9,        //!< transfer speed
-    transferbit         = 10,       //!< image depth bits
-    usbtraffic          = 12,       //!< hblank (?)
-    mechanicalshutter   = 25,       //!< mechanical shutter(?)
 
-    bit8_depth          = 34,       //!< 8bit depth(+)
-    bit16_depth         = 35        //!< 16bit depth(+)
+    speed               = 9,        //!< control the camera transfer speed.
+                                    //!< if the value is‘0’means low speed transmission, if ‘1’means high speed
+
+    transferbit         = 10,       //!< image depth bits
+
+    usbtraffic          = 12,       //!< control the USB bandwidth,(only for QHY5II
+                                    //!< and QHY5LII to reduce the USB bandwidth . Value range: (30-0), 0 - USB
+                                    //!< transmission is the fastest , 30 - transmission is the slowest)
+};
+
+enum bitMode{
+    bit8 = 8,
+    bit16 = 16
 };
 
 #endif // CAMENUMS_H

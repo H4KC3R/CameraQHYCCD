@@ -32,9 +32,9 @@ public:
 
     bool getImageSize(uint32_t* startX, uint32_t* startY, uint32_t* sizeX, uint32_t* sizeY);
 
-    bool setBitsMode();
+    bool setImageBitMode(bitMode bit);
 
-    bool getBitsMode();
+    uint32_t getImageBitMode();
 
     bool setGain(double value);
 
