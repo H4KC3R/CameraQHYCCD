@@ -1,0 +1,3 @@
+D:/Repos/CameraQHYCCD/build-CameraQHYCCD-Desktop_Qt_6_4_2_MinGW_64_bit-Debug/CMakeFiles/CameraQHYCCD.dir
+D:/Repos/CameraQHYCCD/build-CameraQHYCCD-Desktop_Qt_6_4_2_MinGW_64_bit-Debug/CMakeFiles/edit_cache.dir
+D:/Repos/CameraQHYCCD/build-CameraQHYCCD-Desktop_Qt_6_4_2_MinGW_64_bit-Debug/CMakeFiles/rebuild_cache.dir

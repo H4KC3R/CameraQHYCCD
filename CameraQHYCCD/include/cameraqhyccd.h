@@ -11,6 +11,9 @@ private:
     qhyccd_handle *camhandle;
     static bool isSDK_Inited;
     bool connected = false;
+
+    Image
+
     CAM cam;
 
 public:
@@ -43,6 +46,10 @@ public:
     bool setExposure(double ms);
 
     double getExposure(void);
+
+    bool startSingle();
+
+    bool startLive();
 
     bool disconnect();
 

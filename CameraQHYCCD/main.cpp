@@ -22,7 +22,14 @@ int main()
             return -1;
         }
         myCamera = new CameraQHYCCD(id);
-        myCamera->connect(single);
+        int streamMode = single;
+
+        cout << "Select camera stream: " << endl << "0.single" << endl << "1.live" << endl;
+        cin >> streamMode;
+
+        if((streamMode < 0) || (streamMode > 1))
+            cout << "error stream mode" << endl;
+        myCamera->connect(streamMode);
 
         double min, max, step;
 
@@ -56,20 +63,38 @@ int main()
         else
             cout << "usbtraffic is not available in this camera" << endl;
 
-        if (myCamera->getControlMinMaxStep(mechanicalshutter, &min, &max, &step))
-            cout << "mechanicalshutter max: " << max << " " << "mechanicalshutter min: " << min << " " << "mechanicalshutter step: " << step << " " << endl;
-        else
-            cout << "mechanicalshutter is not available in this camera" << endl;
+        cout << "Exposure: " << myCamera->getExposure() << " ms" << endl;
+        cout << "Gain: " << myCamera->getGain() << endl;
+        cout << "Bit:  " << myCamera->getImageBitMode() << endl;
 
-        if (myCamera->getControlMinMaxStep(bit8_depth, &min, &max, &step))
-            cout << "bit8_depth max: " << max << " " << "bit8_depth min: " << min << " " << "bit8_depth step: " << step << " " << endl;
-        else
-            cout << "bit8_depth is not available in this camera" << endl;
+        myCamera->setExposure(1000);
+        myCamera->setGain(40);
+        myCamera->setImageBitMode(bit16);
 
-        if (myCamera->getControlMinMaxStep(bit16_depth, &min, &max, &step))
-            cout << "bit16_depth max: " << max << " " << "bit16_depth min: " << min << " " << "bit16_depth step: " << step << " " << endl;
-        else
-            cout << "bit16_depth is not available in this camera" << endl;
+        cout << "Exposure: " << myCamera->getExposure() << " ms" << endl;
+        cout << "Gain: " << myCamera->getGain() << endl;
+        cout << "Bit:  " << myCamera->getImageBitMode() << endl;
+
+        uint32_t startX = 0, startY = 0, sizeX = 0, sizeY = 0;
+        myCamera->getImageSize(&startX, &startY, &sizeX, &sizeY);
+
+        cout << "StartX: " << startX << endl;
+        cout << "StartY: " << startY << endl;
+        cout << "SizeX:  " << sizeX << endl;
+        cout << "SizeY:  " << sizeY << endl;
+
+        StartX = 10;
+        StartY = 10;
+        SizeX = 400;
+        SizeY = 400;
+
+        myCamera->setImageSize(startX, startY, sizeX, sizeY);
+        myCamera->getImageSize(&startX, &startY, &sizeX, &sizeY);
+
+        cout << "StartX: " << startX << endl;
+        cout << "StartY: " << startY << endl;
+        cout << "SizeX:  " << sizeX << endl;
+        cout << "SizeY:  " << sizeY << endl;
 
         myCamera->disconnect();
         CameraQHYCCD::ReleaseSDK();

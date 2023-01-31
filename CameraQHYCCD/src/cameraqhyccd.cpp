@@ -73,6 +73,7 @@ bool CameraQHYCCD::connect(streamMode mode) {
     if(ret != QHYCCD_SUCCESS)
         return false;
 
+    cam.isLiveMode = (mode == live);
     return true;
 }
 
@@ -128,7 +129,8 @@ bool CameraQHYCCD::setExposure(double ms) {
 }
 
 double CameraQHYCCD::getExposure(void) {
-    return (GetQHYCCDParam(camhandle, CONTROL_EXPOSURE) * 1000.0);
+    // return in ms
+    return (GetQHYCCDParam(camhandle, CONTROL_EXPOSURE) / 1000);
 }
 
 bool CameraQHYCCD::disconnect() {
