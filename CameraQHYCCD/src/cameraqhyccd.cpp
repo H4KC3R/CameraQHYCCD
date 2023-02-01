@@ -74,6 +74,11 @@ bool CameraQHYCCD::connect(streamMode mode) {
         return false;
 
     cam.isLiveMode = (mode == live);
+    cam.isConnected = true;
+
+    img.length = GetQHYCCDMemLength(camhandle);
+    img.ImgData = new unsigned char[img.length * 2]();
+
     return true;
 }
 
@@ -133,6 +138,52 @@ double CameraQHYCCD::getExposure(void) {
     return (GetQHYCCDParam(camhandle, CONTROL_EXPOSURE) / 1000);
 }
 
+bool CameraQHYCCD::startSingleCapture() {
+    if(cam.isLiveMode)
+        return false;
+
+    cam.status = singleCapture;
+    int ret = ExpQHYCCDSingleFrame(camhandle);
+
+    return (ret == QHYCCD_SUCCESS);
+}
+
+bool CameraQHYCCD::stopSingleCapture() {
+
+}
+
+bool CameraQHYCCD::startLiveCapture() {
+    int ret = BeginQHYCCDLive(camhandle);
+}
+
+bool CameraQHYCCD::stopLiveCapture() {
+    int ret = StopQHYCCDLive(camhandle);
+    return (ret == QHYCCD_SUCCESS);
+}
+
+bool CameraQHYCCD::getImage() {
+    int ret = 0;
+    if(cam.status == singleCapture) {
+        ret = GetQHYCCDSingleFrame(camhandle, &img.w, &img.h, &img.bpp, &img.channels, img.ImgData);
+        cam.status = idle;
+    }
+    else if(cam.status == liveCapture)
+        ret = GetQHYCCDLiveFrame(camhandle, &img.w, &img.h, &img.bpp, &img.channels, img.ImgData);
+    else
+        return false;
+
+    return (ret == QHYCCD_SUCCESS);
+}
+
+CameraQHYCCD::~CameraQHYCCD() {
+
+    if(img.ImgData != NULL)
+        delete img.ImgData;
+
+    if(cam.isConnected)
+        disconnect();
+}
+
 bool CameraQHYCCD::disconnect() {
     int ret = CloseQHYCCD(camhandle);
     return (ret == QHYCCD_SUCCESS);
@@ -143,7 +194,6 @@ bool CameraQHYCCD::ReleaseSDK() {
     isSDK_Inited = false;
     return (ret == QHYCCD_SUCCESS);
 }
-
 
 
 

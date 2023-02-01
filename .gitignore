@@ -1,6 +1,13 @@
+# Conan metadata files
+conan.lock
+conanbuildinfo**
+conaninfo.txt
+graph_info.json
+
+# Exclude build files
 .idea
-desktop.ini
-build
-build*
-CameraQHYCCD/CMakeLists.txt.user
+build**
 CMakeLists.txt.user
+
+# Utility trash
+desktop.ini

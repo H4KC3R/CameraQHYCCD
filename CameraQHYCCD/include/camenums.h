@@ -26,4 +26,10 @@ enum bitMode{
     bit16 = 16
 };
 
+enum cameraStatus {
+    idle = 0,
+    singleCapture = 0,
+    liveCapture =0
+};
+
 #endif // CAMENUMS_H

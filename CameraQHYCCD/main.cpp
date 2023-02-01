@@ -22,14 +22,14 @@ int main()
             return -1;
         }
         myCamera = new CameraQHYCCD(id);
-        int streamMode = single;
+        int mode = single;
 
         cout << "Select camera stream: " << endl << "0.single" << endl << "1.live" << endl;
-        cin >> streamMode;
+        cin >> mode;
 
-        if((streamMode < 0) || (streamMode > 1))
+        if((mode < 0) || (mode > 1))
             cout << "error stream mode" << endl;
-        myCamera->connect(streamMode);
+        myCamera->connect((streamMode)mode);
 
         double min, max, step;
 
@@ -83,10 +83,10 @@ int main()
         cout << "SizeX:  " << sizeX << endl;
         cout << "SizeY:  " << sizeY << endl;
 
-        StartX = 10;
-        StartY = 10;
-        SizeX = 400;
-        SizeY = 400;
+        startX = 10;
+        startY = 10;
+        sizeX = 400;
+        sizeY = 400;
 
         myCamera->setImageSize(startX, startY, sizeX, sizeY);
         myCamera->getImageSize(&startX, &startY, &sizeX, &sizeY);
