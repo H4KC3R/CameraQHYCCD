@@ -76,8 +76,7 @@ bool CameraQHYCCD::connect(streamMode mode) {
     cam.isLiveMode = (mode == live);
     cam.isConnected = true;
 
-    img.length = GetQHYCCDMemLength(camhandle);
-    img.ImgData = new unsigned char[img.length * 2]();
+    length = GetQHYCCDMemLength(camhandle);
 
     return true;
 }
@@ -138,6 +137,10 @@ double CameraQHYCCD::getExposure(void) {
     return (GetQHYCCDParam(camhandle, CONTROL_EXPOSURE) / 1000);
 }
 
+int CameraQHYCCD::getImgLength() {
+    return GetQHYCCDMemLength(camhandle);
+}
+
 bool CameraQHYCCD::startSingleCapture() {
     if(cam.isLiveMode)
         return false;
@@ -188,14 +191,14 @@ bool CameraQHYCCD::stopLiveCapture() {
     }
 }
 
-bool CameraQHYCCD::getImage() {
+bool CameraQHYCCD::getImage(uint32_t *w, uint32_t *h, uint32_t *bpp, uint32_t *channels, uint8_t *imgdata) {
     int ret = 0;
     if(cam.status == singleCapture) {
-        ret = GetQHYCCDSingleFrame(camhandle, &img.w, &img.h, &img.bpp, &img.channels, img.ImgData);
+        ret = GetQHYCCDSingleFrame(camhandle, w, h, bpp, channels, imgdata);
         cam.status = idle;
     }
     else if(cam.status == liveCapture)
-        ret = GetQHYCCDLiveFrame(camhandle, &img.w, &img.h, &img.bpp, &img.channels, img.ImgData);
+        ret = GetQHYCCDLiveFrame(camhandle, w, h, bpp, channels, imgdata);
     else
         return false;
 
@@ -205,8 +208,6 @@ bool CameraQHYCCD::getImage() {
 CameraQHYCCD::~CameraQHYCCD() {
     if(cam.isConnected)
         disconnect();
-    if(img.ImgData != NULL)
-        delete img.ImgData;
 }
 
 bool CameraQHYCCD::disconnect() {

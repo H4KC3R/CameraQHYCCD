@@ -12,8 +12,7 @@ private:
     static bool isSDK_Inited;
     bool connected = false;
     CAM cam;
-
-    CAM_Image img;
+    int length;
 
 public:
     CameraQHYCCD(char *id);
@@ -46,6 +45,8 @@ public:
 
     double getExposure(void);
 
+    int getImgLength();
+
     bool startSingleCapture();
 
     bool stopSingleCapture();
@@ -54,7 +55,7 @@ public:
 
     bool stopLiveCapture();
 
-    bool getImage();
+    bool getImage(uint32_t *w, uint32_t *h, uint32_t *bpp, uint32_t *channels, uint8_t *imgdata);
 
     bool disconnect();
 

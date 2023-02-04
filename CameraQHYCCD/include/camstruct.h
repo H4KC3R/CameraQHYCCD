@@ -25,15 +25,4 @@ struct CAM
     uint8_t hbin;
 };
 
-struct CAM_Image{
-    unsigned char *ImgData;
-    int length;
-
-    uint32_t w;
-    uint32_t h;
-
-    uint32_t bpp;
-    uint32_t channels;
-};
-
 #endif // CAMSTRUCT_H
