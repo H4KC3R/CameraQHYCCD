@@ -28,8 +28,9 @@ enum bitMode{
 
 enum cameraStatus {
     idle = 0,
-    singleCapture = 0,
-    liveCapture =0
+    failed,
+    singleCapture,
+    liveCapture
 };
 
 #endif // CAMENUMS_H

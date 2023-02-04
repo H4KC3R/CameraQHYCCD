@@ -6,7 +6,7 @@ project(CameraQHYCCD LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(MSVC 1)
+
 
 if(CONAN_EXPORTED) # in conan local cache
     include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)

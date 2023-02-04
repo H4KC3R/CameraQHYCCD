@@ -52,7 +52,7 @@ public:
 
     bool startLiveCapture();
 
-    bool startLiveCapture();
+    bool stopLiveCapture();
 
     bool getImage();
 

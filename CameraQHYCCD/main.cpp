@@ -96,6 +96,18 @@ int main()
         cout << "SizeX:  " << sizeX << endl;
         cout << "SizeY:  " << sizeY << endl;
 
+
+        if(mode == single){
+            if(myCamera->startSingleCapture()){
+                if(myCamera->getImage())
+                    cout << "";
+                else
+                    cout << "Readout fail" << endl;
+            }
+            else
+                cout << "Exposure start fail" << endl;
+        }
+
         myCamera->disconnect();
         CameraQHYCCD::ReleaseSDK();
     }

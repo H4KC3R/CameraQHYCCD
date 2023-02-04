@@ -8,7 +8,7 @@
 **Windows** <br />
 Необходимо установить : <br />
     &emsp; 1) [Conan](https://conan.io/downloads.html)<br />
-    &emsp; 1) [Cmake + ninja](https://ninja-build.org/)<br />
+    &emsp; 1) [Cmake + ninja](https://cmake.org/download/)<br />
 
 Инструкция по сборке: <br />
     &emsp; 1) mkdir build <br />

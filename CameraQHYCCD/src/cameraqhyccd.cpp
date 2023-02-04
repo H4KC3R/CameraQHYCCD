@@ -144,21 +144,48 @@ bool CameraQHYCCD::startSingleCapture() {
 
     cam.status = singleCapture;
     int ret = ExpQHYCCDSingleFrame(camhandle);
-
-    return (ret == QHYCCD_SUCCESS);
+    if(ret == QHYCCD_SUCCESS)
+        return true;
+    else {
+        cam.status = failed;
+        return false;
+    }
 }
 
 bool CameraQHYCCD::stopSingleCapture() {
-
+    int ret = CancelQHYCCDExposing(camhandle);
+    if(ret == QHYCCD_SUCCESS) {
+        cam.status = idle;
+        return true;
+    }
+    else {
+        cam.status = failed;
+        return false;
+    }
 }
 
 bool CameraQHYCCD::startLiveCapture() {
     int ret = BeginQHYCCDLive(camhandle);
+    if(ret == QHYCCD_SUCCESS) {
+        cam.status = liveCapture;
+        return true;
+    }
+    else {
+        cam.status = failed;
+        return false;
+    }
 }
 
 bool CameraQHYCCD::stopLiveCapture() {
     int ret = StopQHYCCDLive(camhandle);
-    return (ret == QHYCCD_SUCCESS);
+    if(ret == QHYCCD_SUCCESS) {
+        cam.status = idle;
+        return true;
+    }
+    else {
+        cam.status = failed;
+        return false;
+    }
 }
 
 bool CameraQHYCCD::getImage() {
@@ -176,16 +203,19 @@ bool CameraQHYCCD::getImage() {
 }
 
 CameraQHYCCD::~CameraQHYCCD() {
-
-    if(img.ImgData != NULL)
-        delete img.ImgData;
-
     if(cam.isConnected)
         disconnect();
+    if(img.ImgData != NULL)
+        delete img.ImgData;
 }
 
 bool CameraQHYCCD::disconnect() {
+    if(cam.status == liveCapture)
+        stopLiveCapture();
+    else if(cam.status == singleCapture)
+        stopSingleCapture();
     int ret = CloseQHYCCD(camhandle);
+    cam.isConnected = false;
     return (ret == QHYCCD_SUCCESS);
 }
 
