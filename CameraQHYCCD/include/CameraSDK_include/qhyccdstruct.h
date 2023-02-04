@@ -1,10 +1,6 @@
 
 #include "config.h"
-
-
-
-
-
+#include <cstdint>
 
 #ifndef __QHYCCDSTRUCTDEF_H__
 #define __QHYCCDSTRUCTDEF_H__

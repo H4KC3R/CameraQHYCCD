@@ -1,5 +1,5 @@
 [requires]
-opencv/4.5.3
+opencv/4.5.5
 
 [generators]
 cmake
