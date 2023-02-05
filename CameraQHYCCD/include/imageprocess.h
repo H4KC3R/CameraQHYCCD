@@ -2,17 +2,7 @@
 #define IMAGEPROCESS_H
 
 #include <opencv2/xphoto/white_balance.hpp>
-
-struct CAM_Image{
-    cv::Mat *ImgData;
-    int length;
-
-    uint32_t w;
-    uint32_t h;
-
-    uint32_t bpp;
-    uint32_t channels;
-};
+#include <opencv2/imgproc.hpp>
 
 class ImageProcess
 {

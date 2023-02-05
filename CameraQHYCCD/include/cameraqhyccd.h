@@ -11,7 +11,7 @@ private:
     qhyccd_handle *camhandle;
     static bool isSDK_Inited;
     bool connected = false;
-    CAM cam;
+    CAM_parameters params;
     int length;
 
 public:

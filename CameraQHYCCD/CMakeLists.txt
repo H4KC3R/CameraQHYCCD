@@ -16,10 +16,11 @@ set(SOURCES
     include/camenums.h
     include/imageprocess.h)
 
+
 add_executable(CameraQHYCCD ${SOURCES})
 
-target_include_directories(CameraQHYCCD PRIVATE "include/" "include/CameraSDK_include" "include/opencv2")
+target_include_directories(CameraQHYCCD PRIVATE "include/" "include/CameraSDK_include" ${OpenCV_INCLUDE_DIRS})
 
-target_link_directories(CameraQHYCCD PRIVATE "lib/" PRIVATE "lib/opencv")
+target_link_directories(CameraQHYCCD PRIVATE "lib/" )
 
-target_link_libraries(CameraQHYCCD PRIVATE qhyccd ${OpenCV_LIBS})
+target_link_libraries(CameraQHYCCD PRIVATE qhyccd PRIVATE ${OpenCV_LIBS})

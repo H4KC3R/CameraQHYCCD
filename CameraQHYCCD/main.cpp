@@ -1,21 +1,13 @@
 #include <iostream>
 #include "cameraqhyccd.h"
-
-#include "opencv2/core.hpp"
-#include "opencv2/highgui.hpp"
-#include "opencv2/imgcodecs.hpp"
+#include "imageprocess.h"
+#include <opencv2/core/hal/interface.h>
 
 using namespace std;
 
 // qhyccd camera usage sample
 int main()
 {
-    cv::Mat img;
-    img = cv::imread("samurai_neon.jpg");
-    cv::namedWindow("figure", cv::WINDOW_AUTOSIZE);
-    cv::imshow("figure", img);
-    cv::waitKey(0);
-
     CameraQHYCCD* myCamera;
     if(!CameraQHYCCD::initSDK()) {
         cout << "Init SDK fail" << endl;
@@ -105,6 +97,18 @@ int main()
         cout << "StartY: " << startY << endl;
         cout << "SizeX:  " << sizeX << endl;
         cout << "SizeY:  " << sizeY << endl;
+
+        if(!(myCamera->params.isLiveMode)){
+            int l = myCamera->getImgLength();
+            if(myCamera->startSingleCapture()) {
+                uint32_t w = 0, h = 0, bpp = 0, channels = 0;
+                uint8_t* data = new uint8_t[length];
+                myCamera->getImage(&w, &h, &bpp, &channels, data);
+                int type = CV_MAKE_TYPE(bpp,channels);
+                cv::Mat img(h, w, type,data);
+                imshow(img);
+            }
+        }
 
         myCamera->disconnect();
         CameraQHYCCD::ReleaseSDK();

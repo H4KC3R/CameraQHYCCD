@@ -4,7 +4,7 @@
 #ifndef CAMSTRUCT_H
 #define CAMSTRUCT_H
 
-struct CAM
+struct CAM_parameters
 {
     char model[12];         // camera model
     bool isMono;            // mono or color
