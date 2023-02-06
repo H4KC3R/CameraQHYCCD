@@ -1,6 +1,7 @@
 #include <iostream>
 #include "cameraqhyccd.h"
 #include "imageprocess.h"
+#include <fstream>
 
 using namespace std;
 
@@ -110,6 +111,15 @@ int main()
                 cv::imshow("Debayer image", debImg.img);
                 std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
                 std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
+
+                cv::imwrite("raw.jpg", myImg.img);
+                cv::imwrite("debayer.jpg",debImg.img);
+
+                ostringstream filename;
+                filename << "Frame_.raw";
+                std::ofstream outfile (filename.str().c_str(), ios::out | ios::binary);
+                outfile.write((char*)data, myImg.length);  // In byte so frame.total() should be enough ?
+                outfile.close();
 
                 cv::waitKey(0);
 
