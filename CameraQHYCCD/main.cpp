@@ -24,7 +24,7 @@ int main()
             return -1;
         }
         myCamera = new CameraQHYCCD(id);
-        int mode = single;
+        int mode = live;
 
         cout << "Select camera stream: " << endl << "0.single" << endl << "1.live" << endl;
         cin >> mode;
@@ -71,7 +71,7 @@ int main()
 
         myCamera->setExposure(215);
         myCamera->setGain(15);
-        myCamera->setImageBitMode(bit16);
+        myCamera->setImageBitMode(bit8);
 
         cout << "Exposure: " << myCamera->getExposure() << " ms" << endl;
         cout << "Gain: " << myCamera->getGain() << endl;
@@ -97,14 +97,19 @@ int main()
         CAM_Image debImg;
 
         if(!(myCamera->params.isLiveMode)){
-            myImg.length = myCamera->getImgLength();
             if(myCamera->startSingleCapture()) {
-                uint8_t* data = new uint8_t[myImg.length];
+                myImg.length = myCamera->getImgLength();
+                uint8_t* data = new uint8_t[myImg.length * 2];
                 myCamera->getImage(&myImg.w, &myImg.h, &myImg.bpp, &myImg.channels, data);
                 cout << myImg.bpp << " " << myImg.channels << endl;
-                int type = CV_MAKE_TYPE(CV_16U, myImg.channels);
+                int type = CV_MAKE_TYPE(CV_8U, myImg.channels);
                 myImg.img = cv::Mat(myImg.h, myImg.w, type, data);
                 ImageProcess::debayer_img(&myImg, &debImg);
+
+                cv::namedWindow("Camera image", cv::WINDOW_NORMAL);
+                cv::resizeWindow("Camera image", 1200, 1200);
+                cv::namedWindow("Debayer image", cv::WINDOW_NORMAL);
+                cv::resizeWindow("Debayer image", 1200, 1200);
 
                 cv::imshow("Camera image", myImg.img);
                 std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
@@ -112,19 +117,46 @@ int main()
                 std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
                 std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
 
-                cv::imwrite("raw.jpg", myImg.img);
-                cv::imwrite("debayer.jpg",debImg.img);
+                cv::waitKey(0);
+                delete[] data;
+            }
+        }
+        else {
+            if(myCamera->startLiveCapture()) {
+                myImg.length = myCamera->getImgLength();
+                uint8_t* data = new uint8_t[myImg.length];
+                bool ready = false;
+                while(ready == false)
+                    ready = myCamera->getImage(&myImg.w, &myImg.h, &myImg.bpp, &myImg.channels, data);
+                myCamera->stopLiveCapture();
+                cout << myImg.bpp << " " << myImg.channels << endl;
+                int type = CV_MAKE_TYPE(CV_8U, myImg.channels);
+                myImg.img = cv::Mat(myImg.h, myImg.w, type, data);
+                ImageProcess::debayer_img(&myImg, &debImg);
+
+                cv::namedWindow("Camera image", cv::WINDOW_NORMAL);
+                cv::resizeWindow("Camera image", 1200, 1200);
+                cv::namedWindow("Debayer image", cv::WINDOW_NORMAL);
+                cv::resizeWindow("Debayer image", 1200, 1200);
+
+                cv::imshow("Camera image", myImg.img);
+                std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+                cv::imshow("Debayer image", debImg.img);
+                std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+                std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
 
                 ostringstream filename;
-                filename << "Frame_.raw";
+                filename << "Frame.raw";
                 std::ofstream outfile (filename.str().c_str(), ios::out | ios::binary);
-                outfile.write((char*)data, myImg.length);  // In byte so frame.total() should be enough ?
+                outfile.write ((char*)(data), myImg.length);  // In byte so frame.total() should be enough ?
                 outfile.close();
 
                 cv::waitKey(0);
-
+                delete[] data;
             }
         }
+
+
 
         myCamera->disconnect();
         CameraQHYCCD::ReleaseSDK();
