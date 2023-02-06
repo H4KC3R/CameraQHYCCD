@@ -7,7 +7,7 @@
 #include <opencv2/xphoto/white_balance.hpp>
 #include <opencv2/imgproc.hpp>
 
-struct CAM_Image{
+struct camImage{
     cv::Mat img;
 
     int time;
@@ -17,9 +17,8 @@ struct CAM_Image{
     uint32_t bpp = 0;
     uint32_t channels = 0;
 
-    int length;
+    int32_t length;
 };
-
 
 
 class ImageProcess
@@ -27,13 +26,13 @@ class ImageProcess
 public:
     ImageProcess() = delete;
 
-    static void wb_img(CAM_Image* src, CAM_Image* result);
+    static void wb_img(camImage& src, camImage& result);
 
-    static void debayer_img(CAM_Image* src, CAM_Image* result);
+    static void debayer_img(camImage& src, camImage& result);
 
-    static void contrast_img(CAM_Image* src, CAM_Image* result);
+    static void contrast_img(camImage& src, camImage& result);
 
-    static void gc_img(CAM_Image* src, CAM_Image* result);
+    static void gc_img(camImage& src, camImage& result);
 };
 
 #endif // IMAGEPROCESS_H
