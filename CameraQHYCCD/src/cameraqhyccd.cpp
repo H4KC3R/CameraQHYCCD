@@ -76,7 +76,8 @@ bool CameraQHYCCD::connect(streamMode mode) {
     params.isLiveMode = (mode == live);
     params.isConnected = true;
 
-    length = GetQHYCCDMemLength(camhandle);
+    if(!params.isMono)
+        ret = SetQHYCCDDebayerOnOff(camhandle,false);
 
     return true;
 }

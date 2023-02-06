@@ -1,7 +1,6 @@
 #include <iostream>
 #include "cameraqhyccd.h"
 #include "imageprocess.h"
-#include <opencv2/core/hal/interface.h>
 
 using namespace std;
 
@@ -69,8 +68,8 @@ int main()
         cout << "Gain: " << myCamera->getGain() << endl;
         cout << "Bit:  " << myCamera->getImageBitMode() << endl;
 
-        myCamera->setExposure(1000);
-        myCamera->setGain(40);
+        myCamera->setExposure(215);
+        myCamera->setGain(15);
         myCamera->setImageBitMode(bit16);
 
         cout << "Exposure: " << myCamera->getExposure() << " ms" << endl;
@@ -85,11 +84,6 @@ int main()
         cout << "SizeX:  " << sizeX << endl;
         cout << "SizeY:  " << sizeY << endl;
 
-        startX = 10;
-        startY = 10;
-        sizeX = 400;
-        sizeY = 400;
-
         myCamera->setImageSize(startX, startY, sizeX, sizeY);
         myCamera->getImageSize(&startX, &startY, &sizeX, &sizeY);
 
@@ -98,15 +92,27 @@ int main()
         cout << "SizeX:  " << sizeX << endl;
         cout << "SizeY:  " << sizeY << endl;
 
+        CAM_Image myImg;
+        CAM_Image debImg;
+
         if(!(myCamera->params.isLiveMode)){
-            int l = myCamera->getImgLength();
+            myImg.length = myCamera->getImgLength();
             if(myCamera->startSingleCapture()) {
-                uint32_t w = 0, h = 0, bpp = 0, channels = 0;
-                uint8_t* data = new uint8_t[length];
-                myCamera->getImage(&w, &h, &bpp, &channels, data);
-                int type = CV_MAKE_TYPE(bpp,channels);
-                cv::Mat img(h, w, type,data);
-                imshow(img);
+                uint8_t* data = new uint8_t[myImg.length];
+                myCamera->getImage(&myImg.w, &myImg.h, &myImg.bpp, &myImg.channels, data);
+                cout << myImg.bpp << " " << myImg.channels << endl;
+                int type = CV_MAKE_TYPE(CV_16U, myImg.channels);
+                myImg.img = cv::Mat(myImg.h, myImg.w, type, data);
+                ImageProcess::debayer_img(&myImg, &debImg);
+
+                cv::imshow("Camera image", myImg.img);
+                std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+                cv::imshow("Debayer image", debImg.img);
+                std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+                std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
+
+                cv::waitKey(0);
+
             }
         }
 
