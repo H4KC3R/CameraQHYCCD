@@ -1,13 +1,15 @@
 #ifndef IMAGEPROCESS_H
 #define IMAGEPROCESS_H
 
+#include "camenums.h"
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/xphoto/white_balance.hpp>
 #include <opencv2/imgproc.hpp>
 
-struct camImage{
+struct CamImage{
     cv::Mat img;
 
     int time;
@@ -18,6 +20,23 @@ struct camImage{
     uint32_t channels = 0;
 
     int32_t length;
+
+    CamImage& operator=(CamImage other){
+        if (this == &other)
+            return *this;
+
+        img = other.img;
+        time = other.time;
+
+        w = other.w;
+        h = other.h;
+        bpp = other.bpp;
+        channels = other.channels;
+
+        length = other.length;
+
+        return *this;
+    }
 };
 
 
@@ -26,13 +45,15 @@ class ImageProcess
 public:
     ImageProcess() = delete;
 
-    static void wb_img(camImage& src, camImage& result);
+    static int getOpenCvType(BitMode bpp, int channels);
 
-    static void debayer_img(camImage& src, camImage& result);
+    static CamImage whiteBalanceImg(const CamImage& src);
 
-    static void contrast_img(camImage& src, camImage& result);
+    static CamImage debayerImg(const CamImage& src);
 
-    static void gc_img(camImage& src, camImage& result);
+    static CamImage contrastImg(const CamImage& src);
+
+    static CamImage gammaContrasImg(const CamImage& src);
 };
 
 #endif // IMAGEPROCESS_H

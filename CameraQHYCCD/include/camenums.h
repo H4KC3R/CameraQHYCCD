@@ -1,12 +1,12 @@
 #ifndef CAMENUMS_H
 #define CAMENUMS_H
 
-enum streamMode {
+enum StreamMode {
     single = 0,
     live
 };
 
-enum cameraControls {
+enum CameraControls {
     gain                = 6,        //!< camera gain
     offset              = 7,        //!< camera offset
     exposure            = 8,        //!< expose time (us)
@@ -21,12 +21,12 @@ enum cameraControls {
                                     //!< transmission is the fastest , 30 - transmission is the slowest)
 };
 
-enum bitMode{
+enum BitMode{
     bit8 = 8,
     bit16 = 16
 };
 
-enum cameraStatus {
+enum CameraStatus {
     idle = 0,
     failed,
     singleCapture,

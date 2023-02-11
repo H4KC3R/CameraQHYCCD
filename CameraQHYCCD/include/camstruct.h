@@ -4,14 +4,14 @@
 #ifndef CAMSTRUCT_H
 #define CAMSTRUCT_H
 
-struct camParameters
+struct CamParameters
 {
     char m_model[12];         // camera model
     bool m_isMono;            // mono or color
     bool m_isLiveMode;        // camera mode
     bool m_isConnected = false;
 
-    cameraStatus m_status = idle;
+    CameraStatus m_status = idle;
 
     double m_chipw;           // chip size width (in mm)
     double m_chiph;           // chip size height (in mm)

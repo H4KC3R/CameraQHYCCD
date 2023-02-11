@@ -8,11 +8,11 @@
 class CameraQHYCCD
 {
 private:
-    qhyccd_handle *m_camhandle;
+    qhyccd_handle *p_camhandle;
     static bool m_isSdkInited;
 
 public:
-    camParameters params;
+    CamParameters params;
 
 public:
     CameraQHYCCD(char* id);
@@ -25,15 +25,15 @@ public:
 
     static bool getID(int32_t num, char* id);
 
-    bool connect(streamMode mode);
+    bool connect(StreamMode mode);
 
-    bool getControlMinMaxStep(cameraControls control, double& min, double& max, double& step);
+    bool getControlMinMaxStep(CameraControls control, double& min, double& max, double& step);
 
     bool setImageSize(uint32_t x, uint32_t y, uint32_t xsize, uint32_t ysize);
 
     bool getImageSize(uint32_t& startX, uint32_t& startY, uint32_t& sizeX, uint32_t& sizeY);
 
-    bool setImageBitMode(bitMode bit);
+    bool setImageBitMode(BitMode bit);
 
     uint32_t getImageBitMode();
 
