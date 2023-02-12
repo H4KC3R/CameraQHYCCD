@@ -25,7 +25,7 @@ struct CamImage{
         if (this == &other)
             return *this;
 
-        img = other.img;
+        img = other.img.clone();
         time = other.time;
 
         w = other.w;
@@ -41,7 +41,7 @@ struct CamImage{
 
 
 class ImageProcess
-{
+{   
 public:
     ImageProcess() = delete;
 
@@ -51,9 +51,9 @@ public:
 
     static CamImage debayerImg(const CamImage& src);
 
-    static CamImage contrastImg(const CamImage& src);
+    static CamImage contrastImg(const CamImage& src, double coeff);
 
-    static CamImage gammaContrasImg(const CamImage& src);
+    static CamImage gammaContrastImg(const CamImage& src, double kGamma);
 };
 
 #endif // IMAGEPROCESS_H

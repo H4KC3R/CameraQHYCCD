@@ -23,11 +23,24 @@ CamImage ImageProcess::debayerImg(const CamImage& src) {
     return result;
 }
 
-//void ImageProcess::contrast_img(CAM_Image *src, CAM_Image *result) {
-//    return;
-//}
+CamImage ImageProcess::contrastImg(const CamImage& src, double coeff) {
+    if(coeff < 0)
+        throw std::logic_error("The contrast coefficient should not be negative!");
+    CamImage result;
+    result = src;
+    src.img.convertTo(result.img, -1, coeff);
+    return result;
+}
 
-//void ImageProcess::gc_img(CAM_Image *src, CAM_Image *result)
-//{
-//    return;
-//}
+CamImage ImageProcess::gammaContrastImg(const CamImage& src, double kGamma) {
+    CamImage result;
+    result = src;
+
+    cv::Mat lookUpTable(1, 256, CV_8U);
+    uchar* p = lookUpTable.ptr();
+    for(int i = 0; i < 256; ++i)
+        p[i] = cv::saturate_cast<uchar>(pow(i / 255.0, kGamma) * 255.0);
+
+    cv::LUT(src.img, lookUpTable, result.img);
+    return result;
+}
