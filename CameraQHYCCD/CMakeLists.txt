@@ -11,10 +11,15 @@ set(SOURCES
     main.cpp
     src/cameraqhyccd.cpp
     src/imageprocess.cpp
+    src/objectivecontroller.cpp
+    src/autoexposurehandler.cpp
     include/cameraqhyccd.h
     include/camstruct.h
     include/camenums.h
-    include/imageprocess.h)
+    include/imageprocess.h
+    include/objectivecontroller.h
+    include/autoexposurehandler.h
+)
 
 
 add_executable(CameraQHYCCD ${SOURCES})
