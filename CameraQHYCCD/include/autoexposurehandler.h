@@ -7,30 +7,67 @@
 #include <opencv2/xphoto/white_balance.hpp>
 #include <opencv2/imgproc.hpp>
 
+struct AutoExposureParams{
+    double maxPercent = 0;
+    double minRelCoef;
+    double maxRelCoeff;
+    double mean;
+};
 
 class AutoExposureHandler
 {
 private:
-    int mProcessCounter;
-    int mMaxFrameCoeff;
-    int mDivideCoeff;
-    int mDivideCoeffMax;
-    int mDivideCoeffDefault
+    double mMaxExposure = 0;
+    double mMinExposure = 0;
+    double mMaxGain = 0;
+    double mMinGain = 0;
 
-    double mGain;
-    double mExposure;
-    double mMinGainCoeff;
-    double mMaxGainCoeff;
-    double mMaxPercent;
-    double mMinRelCoef;
-    double mMaxRelCoeff;
-    double mMean;
+    int mProcessCounter = 0;
+    int mMaxFrameCoeff = 20;
+    int mDivideCoeff = 2;
+    int mDivideCoeffMax = 24;
+    int mDivideCoeffDefault = 2;
+
+    double mExposureToSet;
+    double mGainToSet;
+
+    AutoExposureParams mParams;
 
 public:
 
-    AutoExposureHandler();
+    AutoExposureHandler(double maxExposure, double minExposure, double maxGain,
+                        double minGain, AutoExposureParams params);
 
-    bool correct(cv::Mat image);
+    bool correct(cv::Mat image, double currExposure, double currGain);
+
+    // ************************** Getters ************************** //
+    double getMaxExposure()             { return mMaxExposure; }
+    double getMinExposure()             { return mMinExposure; }
+    double getMaxGain()                 { return mMaxGain; }
+    double getMinGain()                 { return mMinGain; }
+
+    int getMaxFrameCoeff()              { return mMaxFrameCoeff; }
+    int getDivideCoeff()                { return mDivideCoeff; }
+    int getDivideCoeffMax()             { return mDivideCoeffMax; }
+    int getDivideCoeffDefault()         { return mDivideCoeffDefault; }
+
+    double getExposure()                { return mExposureToSet; }
+    double getGain()                    { return mGainToSet; }
+
+    AutoExposureParams getParams()      { return mParams; }
+
+    // ************************** Setters ************************** //
+    void setMaxExposure(double maxExposure)                 { mMaxExposure = maxExposure; }
+    void setMinExposure(double minExposure)                 { mMinExposure = minExposure; }
+    void setMaxGain(double maxGain)                         { mMaxGain = maxGain; }
+    void setMinGain(double minGain)                         { mMinGain = minGain; }
+
+    void setMaxFrameCoeff(int maxFrameCoeff)                { mMaxFrameCoeff = maxFrameCoeff; }
+    void setDivideCoeff(int divideCoeff)                    { mDivideCoeff = divideCoeff; }
+    void setDivideCoeffMax(int divideCoeffMax)              { mDivideCoeffMax = divideCoeffMax; }
+    void setDivideCoeffDefault(int divideCoeffDefault)      { mDivideCoeffDefault = divideCoeffDefault; }
+
+    void setParams(AutoExposureParams params)               { mParams = params; }
 
 };
 

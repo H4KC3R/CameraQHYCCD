@@ -1,12 +1,15 @@
 #include "autoexposurehandler.h"
 
 
-AutoExposureHandler::AutoExposureHandler()
+AutoExposureHandler::AutoExposureHandler(double maxExposure, double minExposure, double maxGain,
+                    double minGain, AutoExposureParams params) : mMaxExposure(maxExposure),
+    mMinExposure(minExposure), mMaxGain(maxGain), mMinGain(minGain), mParams(params)
 {
 
 }
 
-bool AutoExposureHandler::correct(cv::Mat image) {
+
+bool AutoExposureHandler::correct(cv::Mat image, double currExposure, double currGain) {
     int bins = 256;
     int histSize[] = {bins};
     // Set ranges for histogram bins
@@ -23,55 +26,45 @@ bool AutoExposureHandler::correct(cv::Mat image) {
     double percent = hist.at <float> (255.0);
 
     double mean = cv::mean(image)[0];
-    double relMean = mean / mMean;
-    double rel = percent / mMaxPercent;
+    double relMean = mean / mParams.mean;
+    double rel = percent / mParams.maxPercent;
 
     if (relMean > 1 && rel > 1)
       rel = relMean > rel ? relMean : rel;
     else
         rel = relMean;
 
-    if (!(rel <= mMaxRelCoeff && rel >= mMinRelCoef)) {
+    if (!(rel <= mParams.maxRelCoeff && rel >= mParams.minRelCoef)) {
         ++mProcessCounter;
-        if (mProcessCounter > mMaxFrameCoeff && mDivideCoeff < mDivideCoeff) {
+        if (mProcessCounter > mMaxFrameCoeff && mDivideCoeff < mDivideCoeffMax) {
             mDivideCoeff += 2;
             mProcessCounter = 0;
         }
-        if (mProcessCounter > mMaxFrameCoeff * 3 && mDivideCoeff == mDivideCoeffMax) {
-              mDivideCoeff = mDivideCoeffDefault;
-          }
-          double neededExposure = params->exposure() / rel;
-          double exposureStep = neededExposure - params->exposure();
-          double gainStep = (exposureStep / mDivideCoeff) * 15;
-          gainStep = gainStep < 1 ? 1 : gainStep;
+        if (mProcessCounter > mMaxFrameCoeff * 3 && mDivideCoeff == mDivideCoeffMax)
+            mDivideCoeff = mDivideCoeffDefault;
 
-          params->set_exposure(params->exposure() + exposureStep / divideCoeff);
+        double neededExposure = currExposure / rel;
+        double exposureStep = neededExposure - currExposure;
+        double gainStep = (exposureStep / mDivideCoeff) * 15;
+        gainStep = gainStep < 1 ? 1 : gainStep;
 
-          if (params->exposure() > lowExp && params->gain() <= params->max_gain_coeff())
-          {
-              params->set_gain(params->gain() + gainStep);
-          }
-          else if (params->exposure() < lowExp)
-          {
-              params->set_gain(params->min_gain_coeff());
-          }
-          //qDebug()<< neededExposure << exposureStep << gainStep << divideCoeff;
+        mExposureToSet = currExposure + exposureStep / mDivideCoeff;
 
-          if (params->exposure() > maxExp)
-          {
-              params->set_exposure(maxExp);
-          }
-          if (params->gain() > params->max_gain_coeff())
-          {
-              params->set_gain(params->max_gain_coeff());
-          }
+        if(mExposureToSet > mMinExposure && currGain <= mMaxGain)
+            mGainToSet = currGain + gainStep;
+        else if(mExposureToSet < mMinExposure)
+            mGainToSet = mMinGain;
 
-          return true;
+        if(mExposureToSet > mMaxExposure)
+            mExposureToSet = mMaxExposure;
+
+        if(mGainToSet > mMaxGain)
+            mGainToSet = mMaxGain;
+
+        return true;
       }
-      else
-      {
-          processCounter = 0;
+      else {
+          mProcessCounter = 0;
           return false;
       }
-
 }
