@@ -1,18 +1,35 @@
 #include <iostream>
 #include "cameraqhyccd.h"
+#include "objectivecontroller.h"
 #include "imageprocess.h"
 #include <fstream>
 
 using namespace std;
 
+void cameraExample();
+
 // qhyccd camera usage sample
 int main()
 {
-    CameraQHYCCD* myCamera;
+    ObjectiveController myController("COM8");
+    double result = myController.getCurrentFocusing();
+    cout << result << endl;
+    myController.setFocusing(4300);
+    myController.setFocusing(4400);
+    myController.setFocusing(4500);
+    myController.setFocusing(4600);
+    result = myController.getCurrentFocusing();
 
+    cout << result << endl;
+
+    return 0;
+}
+
+void cameraExample(){
+    CameraQHYCCD* myCamera;
     if(!CameraQHYCCD::initSDK()) {
         cout << "Init SDK fail" << endl;
-        return -1;
+        return;
     }
 
     int num = 0;
@@ -22,7 +39,7 @@ int main()
         cout << "Camera found: " << num << endl;
         if(!CameraQHYCCD::getID(0,id)) {
             cout << "ID getting fail" << endl;
-            return -1;
+            return;
         }
         myCamera = new CameraQHYCCD(id);
         int32_t mode = live;
@@ -175,6 +192,4 @@ int main()
     }
     else
         cout << "Camera found   : " << num << endl;
-    system("pause");
-    return 0;
 }
