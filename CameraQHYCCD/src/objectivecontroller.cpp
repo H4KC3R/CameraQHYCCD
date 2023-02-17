@@ -24,33 +24,27 @@ bool ObjectiveController::connectToController(const char* serialPort) {
     return true;
 }
 
-bool ObjectiveController::testControllerActive() {
-    if(mObjective.isDeviceOpen())
-        return true;
-    return false;
-}
-
-void ObjectiveController::setDiaphragmLevel(const string& value) {
+void ObjectiveController::setDiaphragmLevel(const double value) {
     mError.clear();
+    int index;
+    auto itr = std::find(mAppertures.begin(), mAppertures.end(), value);
+    if (itr != mAppertures.cend())
+        index = std::distance(mAppertures.begin(), itr);
+    else{
+        mError = "Wrong apperture value";
+        return;
+    }
     if (testControllerActive()) {
+        if( mObjective.writeString(getAppertureCmd(index).c_str()) != 1 )
+            mError = "Writting error";
 
-
-        if (value.size() == diaphragmCommandSize && value.at(0) == 'A' && value.at(value.size() - 1) == '#') {
-            //if( mObjective.writeString(value) != 1 ) {
-            //    error = "Writting error";
-            //}
-        }
-        else
-            mError = "Wrong command format";
     }
 }
 
 void ObjectiveController::setFocusing(const double value) {
     mError.clear();
     if (testControllerActive()) {
-        string val = to_string(value);
-        string cmd = "M" + val + "#";
-        if( mObjective.writeString(cmd.c_str()) != 1 ) {
+        if( mObjective.writeString(getFocusingCmd(value).c_str()) != 1 ) {
             mError = "Writting error";
         }
     }
@@ -86,4 +80,27 @@ double ObjectiveController::getCurrentFocusing() {
 
 string ObjectiveController::currentError() const{
     return mError;
+}
+
+bool ObjectiveController::testControllerActive() {
+    if(mObjective.isDeviceOpen())
+        return true;
+    return false;
+}
+
+string ObjectiveController::getFocusingCmd(const double value) {
+    string val = to_string(value);
+    string cmd = "M" + val + "#";
+    return cmd;
+}
+
+string ObjectiveController::getAppertureCmd(const int value) {
+    string str = to_string(value);
+    size_t n = 2;
+
+    int precision = n - std::min(n, str.size());
+    str.insert(0, precision, '0');
+
+    string cmd = "A" + str + "#";
+    return cmd;
 }

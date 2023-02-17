@@ -7,22 +7,28 @@
 using namespace std;
 
 void cameraExample();
+void objectiveExample();
 
-// qhyccd camera usage sample
 int main()
 {
-    ObjectiveController myController("COM8");
+    objectiveExample();
+    return 0;
+}
+
+void objectiveExample(){
+    ObjectiveController myController("COM7");
     double result = myController.getCurrentFocusing();
     cout << result << endl;
+    myController.setFocusing(0);
+    myController.setFocusing(5000);
+    myController.setFocusing(3500);
+    myController.setFocusing(2600);
+    result = myController.getCurrentFocusing();
+    cout << result << endl;
     myController.setFocusing(4300);
-    myController.setFocusing(4400);
-    myController.setFocusing(4500);
-    myController.setFocusing(4600);
     result = myController.getCurrentFocusing();
 
     cout << result << endl;
-
-    return 0;
 }
 
 void cameraExample(){

@@ -3,6 +3,9 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <vector>
+#include <algorithm>
+
 #include "serialib.h"
 
 using namespace std;
@@ -15,7 +18,7 @@ public:
 
     bool connectToController(const char* serialPort);
 
-    void setDiaphragmLevel(const string& value);
+    void setDiaphragmLevel(const double value);
 
     void setFocusing(const double value);
 
@@ -26,12 +29,13 @@ public:
 private:
 
     bool testControllerActive();
+    string getFocusingCmd(const double value);
+    string getAppertureCmd(const int value);
 
+    vector <double> mAppertures = {};
     serialib mObjective;
     string mSerialPort;
     string mError;
-    const string focusCommand = "M#";
-    static constexpr const int16_t diaphragmCommandSize = 4;
 };
 
 #endif // OBJECTIVECONTROLLER_H
