@@ -11,6 +11,12 @@ namespace ImageBlurMetric {
 
 double getBlurLaplacian(cv::Mat image);
 
+double getBlurSobel();
+
+double getBlurScharr();
+
+double getBlurDFT();
+
 }
 
 #endif // IMAGEBLURMETRIC_H

@@ -13,3 +13,19 @@ double ImageBlurMetric::getBlurLaplacian(cv::Mat image){
     double variance = stddev.val[0] * stddev.val[0];
     return variance;
 }
+
+
+
+double ImageBlurMetric::getBlurSobel(cv::Mat image) {
+    cv::Mat output, outputAbs;
+
+    cv::Sobel(image, output, CV_16S, 1, 0, 3, 1, 0, cv::BORDER_DEFAULT);
+    cv::convertScaleAbs(output, outputAbs);
+
+    return 0;
+}
+
+double ImageBlurMetric::getBlurScharr(cv::Mat image)
+{
+
+}
