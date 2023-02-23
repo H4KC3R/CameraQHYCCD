@@ -40,20 +40,21 @@ struct CamImage{
 };
 
 
-class ImageProcess
-{   
-public:
-    ImageProcess() = delete;
+namespace ImageProcess {
 
-    static int getOpenCvType(BitMode bpp, int channels);
+int getOpenCvType(BitMode bpp, int channels);
 
-    static CamImage whiteBalanceImg(const CamImage& src);
+CamImage whiteBalanceImg(const CamImage& src);
 
-    static CamImage debayerImg(const CamImage& src);
+CamImage debayerImg(const CamImage& src);
 
-    static CamImage contrastImg(const CamImage& src, double coeff);
+CamImage contrastImg(const CamImage& src, double coeff);
 
-    static CamImage gammaContrastImg(const CamImage& src, double kGamma);
-};
+CamImage gammaContrastImg(const CamImage& src, double kGamma);
+
+double getSharpness();
+
+}
+
 
 #endif // IMAGEPROCESS_H

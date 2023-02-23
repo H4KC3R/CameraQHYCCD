@@ -9,9 +9,7 @@ using namespace std;
 void cameraExample();
 void objectiveExample();
 
-int main()
-{
-    objectiveExample();
+int main() {
     return 0;
 }
 

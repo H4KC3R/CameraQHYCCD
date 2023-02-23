@@ -26,6 +26,8 @@ public:
 
     string currentError() const;
 
+    void setAppertureVal();
+
 private:
 
     bool testControllerActive();
