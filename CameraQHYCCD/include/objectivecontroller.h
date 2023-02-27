@@ -28,13 +28,17 @@ public:
 
     void setAppertureVal();
 
+    std::vector<double> getAppertures();
+
+    void setAppertures(std::vector<double> appertures);
+
 private:
 
     bool testControllerActive();
     string getFocusingCmd(const double value);
-    string getAppertureCmd(const int value);
+    string getAppertureCmd(const double value);
 
-    vector <double> mAppertures = {};
+    vector <double> mAppertures;
     serialib mObjective;
     string mSerialPort;
     string mError;

@@ -6,23 +6,23 @@
 
 struct CamParameters
 {
-    char m_model[12];         // camera model
-    bool m_isMono;            // mono or color
-    bool m_isLiveMode;        // camera mode
-    bool m_isConnected = false;
+    char mModel[12];         // camera model
+    bool mIsMono;            // mono or color
+    bool mIsLiveMode;        // camera mode
+    bool mIsConnected = false;
 
-    CameraStatus m_status = idle;
+    CameraStatus mStatus = idle;
 
-    double m_chipw;           // chip size width (in mm)
-    double m_chiph;           // chip size height (in mm)
-    double m_pixelw;          // chip pixel size width (in um)
-    double m_pixelh;          // chip pixel size height (in um)
-    uint32_t m_maximgw;       // maximum chip output image width
-    uint32_t m_maximgh;       // maximum chip output image height
-    uint32_t m_bpp;           // chip pixel depth
+    double mChipw;           // chip size width (in mm)
+    double mChiph;           // chip size height (in mm)
+    double mPixelw;          // chip pixel size width (in um)
+    double mPixelh;          // chip pixel size height (in um)
+    uint32_t mMaximgw;       // maximum chip output image width
+    uint32_t mMaximgh;       // maximum chip output image height
+    uint32_t mBpp;           // chip pixel depth
 
-    uint8_t m_wbin;
-    uint8_t m_hbin;
+    uint8_t mWbin;
+    uint8_t mHbin;
 };
 
 #endif // CAMSTRUCT_H

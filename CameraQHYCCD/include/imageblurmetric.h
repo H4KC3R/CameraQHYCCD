@@ -15,7 +15,7 @@ double getBlurSobel(cv::Mat image);
 
 double getBlurScharr(cv::Mat image);
 
-double getBlurFFT(cv::Mat image);
+double getBlurFFT(cv::Mat image, int cutOffFreq = 60);
 
 }
 

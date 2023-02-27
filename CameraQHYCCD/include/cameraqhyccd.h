@@ -8,8 +8,8 @@
 class CameraQHYCCD
 {
 private:
-    qhyccd_handle *p_camhandle;
-    static bool m_isSdkInited;
+    qhyccd_handle *pCamhandle;
+    static bool mIsSdkInited;
 
 public:
     CamParameters params;

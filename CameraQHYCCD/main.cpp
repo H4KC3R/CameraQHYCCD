@@ -117,7 +117,7 @@ void cameraExample(){
 
         CamImage myImg;
 
-        if(!(myCamera->params.m_isLiveMode)){
+        if(!(myCamera->params.mIsLiveMode)){
             if(myCamera->startSingleCapture()) {
                 myImg.length = myCamera->getImgLength();
                 uint8_t* data = new uint8_t[myImg.length * 2];
