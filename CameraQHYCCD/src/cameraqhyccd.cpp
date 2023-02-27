@@ -2,7 +2,7 @@
 #include <iostream>
 #include <exception>
 
-bool CameraQHYCCD::mIsSdkInited = false;s
+bool CameraQHYCCD::mIsSdkInited = false;
 
 CameraQHYCCD::CameraQHYCCD(char* id) {
     if(id == NULL)
