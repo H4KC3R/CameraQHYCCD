@@ -2,6 +2,7 @@
 #include "cameraqhyccd.h"
 #include "objectivecontroller.h"
 #include "imageprocess.h"
+#include "imageblurmetric.h"
 #include <fstream>
 
 using namespace std;
@@ -10,6 +11,7 @@ void cameraExample();
 void objectiveExample();
 
 int main() {
+    cameraExample();
     return 0;
 }
 
@@ -181,6 +183,16 @@ void cameraExample(){
                 std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
 
                 cv::imshow("White balanced image", wbImg.img);
+
+                double sobel = ImageBlurMetric::getBlurSobel(myImg.img);
+                double scharr = ImageBlurMetric::getBlurScharr(myImg.img);
+                double laplacian = ImageBlurMetric::getBlurLaplacian(myImg.img);
+                double fft = ImageBlurMetric::getBlurFFT(myImg.img);
+
+                std::cout << "Sobel" << sobel << endl;
+                std::cout << "Scharr" << scharr << endl;
+                std::cout << "Laplacian" << laplacian << endl;
+                std::cout << "FFT" << fft << endl;
 
                 //ofstream binaryFile ("file.raw", ios::out | ios::binary);
                 //binaryFile.write ((char*)data, myImg.length);
