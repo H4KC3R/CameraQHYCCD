@@ -94,7 +94,7 @@ void cameraExample(){
         cout << "Bit:  " << myCamera->getImageBitMode() << endl;
 
         myCamera->setExposure(215);
-        myCamera->setGain(15);
+        myCamera->setGain(0);
         myCamera->setImageBitMode(bit8);
 
         cout << "Exposure: " << myCamera->getExposure() << " ms" << endl;
@@ -157,6 +157,8 @@ void cameraExample(){
 
                 cout << myImg.bpp << " " << myImg.channels << endl;
                 int type = ImageProcess::getOpenCvType((BitMode)myImg.bpp, myImg.channels);
+                cout << CV_8UC1 << endl;
+                cout << type << endl;
                 myImg.img = cv::Mat(myImg.h, myImg.w, type, data);
 
                 cv::namedWindow("Camera image", cv::WINDOW_NORMAL);
@@ -182,17 +184,17 @@ void cameraExample(){
                 end = std::chrono::steady_clock::now();
                 std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
 
-                cv::imshow("White balanced image", wbImg.img);
+                cv::imshow("WB image", wbImg.img);
 
                 double sobel = ImageBlurMetric::getBlurSobel(myImg.img);
                 double scharr = ImageBlurMetric::getBlurScharr(myImg.img);
                 double laplacian = ImageBlurMetric::getBlurLaplacian(myImg.img);
                 double fft = ImageBlurMetric::getBlurFFT(myImg.img);
 
-                std::cout << "Sobel" << sobel << endl;
-                std::cout << "Scharr" << scharr << endl;
-                std::cout << "Laplacian" << laplacian << endl;
-                std::cout << "FFT" << fft << endl;
+                std::cout << "Sobel     " << sobel << endl;
+                std::cout << "Scharr    " << scharr << endl;
+                std::cout << "Laplacian     " << laplacian << endl;
+                std::cout << "FFT " << fft << endl;
 
                 //ofstream binaryFile ("file.raw", ios::out | ios::binary);
                 //binaryFile.write ((char*)data, myImg.length);
