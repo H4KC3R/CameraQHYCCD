@@ -25,6 +25,8 @@ public:
 
     static bool getID(int32_t num, char* id);
 
+    static std::string getModel(char* id);
+
     bool connect(StreamMode mode);
 
     bool getControlMinMaxStep(CameraControls control, double& min, double& max, double& step);
