@@ -99,6 +99,10 @@ bool CameraQHYCCD::getControlMinMaxStep(CameraControls control, double& min, dou
     if(ret != QHYCCD_SUCCESS)
         return false;
     ret = GetQHYCCDParamMinMaxStep(pCamhandle, (CONTROL_ID)control, &min, &max, &step);
+    if(control == exposure){
+        min /= 1000;
+        max /= 1000;
+    }
     return (ret == QHYCCD_SUCCESS);
 }
 

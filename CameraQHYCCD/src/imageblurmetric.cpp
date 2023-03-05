@@ -1,14 +1,14 @@
 #include "imageblurmetric.h"
 
-double ImageBlurMetric::getBlurLaplacian(cv::Mat image){
+double ImageBlurMetric::getBlurLaplacian(const cv::Mat image){
     cv::Mat output, outputAbs;
     cv::Scalar mean, stddev; //0:1st channel, 1:2nd channel and 2:3rd channel
 
-    cv::Laplacian(image, output, CV_64F, 3, 1, 0);
+    cv::Laplacian(image, output, CV_64F, 3, 1, 0, cv::BORDER_DEFAULT);
     // изначально выходное изображение было в формате 64 float,
     // чтобы избежать переполнение
     cv::convertScaleAbs(output, outputAbs);
-    cv::meanStdDev(outputAbs, mean, stddev);
+    cv::meanStdDev(outputAbs, mean, stddev, cv::Mat());
 
     double variance = stddev.val[0] * stddev.val[0];
     return variance;
@@ -28,7 +28,7 @@ double ImageBlurMetric::getBlurSobel(const cv::Mat image) {
     return mean.val[0];
 }
 
-double ImageBlurMetric::getBlurScharr(cv::Mat image) {
+double ImageBlurMetric::getBlurScharr(const cv::Mat image) {
     cv::Mat outputX, outputY;
 
     cv::Scharr(image, outputX, CV_32FC1, 1, 0, 1, 0, cv::BORDER_DEFAULT);
@@ -42,12 +42,11 @@ double ImageBlurMetric::getBlurScharr(cv::Mat image) {
     return mean.val[0];
 }
 
-double ImageBlurMetric::getBlurFFT(cv::Mat image, int cutOffFreq) {
+double ImageBlurMetric::getBlurFFT(const cv::Mat image, int cutOffFreq) {
     int cx = image.cols/2;
     int cy = image.rows/2;
 
     cv::Mat fImage;
-
     image.convertTo(fImage, CV_32F);
 
     // FFT
