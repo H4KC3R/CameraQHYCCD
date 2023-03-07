@@ -15,6 +15,7 @@ set(SOURCES
     src/autoexposurehandler.cpp
     src/imageblurmetric.cpp
     src/serialib.cpp
+    src/imagepipeline.cpp
     include/cameraqhyccd.h
     include/camstruct.h
     include/camenums.h
@@ -23,6 +24,7 @@ set(SOURCES
     include/autoexposurehandler.h
     include/serialib.h
     include/imageblurmetric.h
+    include/imagepipeline.h
 )
 
 add_executable(CameraQHYCCD ${SOURCES})
