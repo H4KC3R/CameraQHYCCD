@@ -4,6 +4,10 @@
 
 bool CameraQHYCCD::mIsSdkInited = false;
 
+CameraStatus CameraQHYCCD::status() const{
+    return mStatus;
+}
+
 CameraQHYCCD::CameraQHYCCD(char* id) {
     if(id == NULL)
         throw std::logic_error("Id address is null");
@@ -168,27 +172,27 @@ CamParameters CameraQHYCCD::getCameraParameters() {
 bool CameraQHYCCD::startSingleCapture() {
     if(mParams.mIsLiveMode)
         return false;
-    mPipeline.clearPipeline();
 
-    CamImage img;
-    mParams.mStatus = singleCapture;
+    mStatus = singleCapture;
     uint32_t ret = ExpQHYCCDSingleFrame(pCamhandle);
     if(ret == QHYCCD_SUCCESS) {
-        ret = GetQHYCCDSingleFrame(pCamhandle, &img.w, &img.h, &img.bpp, &img.channels, img.data);
-        if(ret == QHYCCD_SUCCESS){
-            mPipeline.setFrame(img);
-        }
+        mStatus = idle;
+        return true;
+    }
+    else{
+        mStatus = failed;
+        return false;
     }
 }
 
 bool CameraQHYCCD::stopSingleCapture() {
     uint32_t ret = CancelQHYCCDExposing(pCamhandle);
     if(ret == QHYCCD_SUCCESS) {
-        mParams.mStatus = idle;
+        mStatus = idle;
         return true;
     }
     else {
-        mParams.mStatus = failed;
+        mStatus = failed;
         return false;
     }
 }
@@ -196,11 +200,11 @@ bool CameraQHYCCD::stopSingleCapture() {
 bool CameraQHYCCD::startLiveCapture() {
     uint32_t ret = BeginQHYCCDLive(pCamhandle);
     if(ret == QHYCCD_SUCCESS) {
-        mParams.mStatus = liveCapture;
+        mStatus = liveCapture;
         return true;
     }
     else {
-        mParams.mStatus = failed;
+        mStatus = failed;
         return false;
     }
 }
@@ -208,22 +212,22 @@ bool CameraQHYCCD::startLiveCapture() {
 bool CameraQHYCCD::stopLiveCapture() {
     uint32_t ret = StopQHYCCDLive(pCamhandle);
     if(ret == QHYCCD_SUCCESS) {
-        mParams.mStatus = idle;
+        mStatus = idle;
         return true;
     }
     else {
-        mParams.mStatus = failed;
+        mStatus = failed;
         return false;
     }
 }
 
 bool CameraQHYCCD::getImage(uint32_t& w, uint32_t& h, uint32_t& bpp, uint32_t& channels, uint8_t* imgdata) {
     uint32_t ret = 0;
-    if(mParams.mStatus == singleCapture) {
+    if(mStatus == singleCapture) {
         ret = GetQHYCCDSingleFrame(pCamhandle, &w, &h, &bpp, &channels, imgdata);
         mParams.mStatus = idle;
     }
-    else if(mParams.mStatus == liveCapture)
+    else if(mStatus == liveCapture)
         ret = GetQHYCCDLiveFrame(pCamhandle, &w, &h, &bpp, &channels, imgdata);
     else
         return false;
@@ -237,9 +241,9 @@ CameraQHYCCD::~CameraQHYCCD() {
 }
 
 bool CameraQHYCCD::disconnect() {
-    if(mParams.mStatus == liveCapture)
+    if(mStatus == liveCapture)
         stopLiveCapture();
-    else if(mParams.mStatus == singleCapture)
+    else if(mStatus == singleCapture)
         stopSingleCapture();
     uint32_t ret = CloseQHYCCD(pCamhandle);
     mParams.mIsConnected = false;

@@ -9,13 +9,10 @@
 class CameraQHYCCD
 {
 private:
-    ImagePipeline<CamImage> mPipeline;
-
     qhyccd_handle *pCamhandle;
     static bool mIsSdkInited;
     CamParameters mParams;
-
-
+    CameraStatus mStatus = idle;
 
 public:
     CameraQHYCCD(char* id);
@@ -68,6 +65,8 @@ public:
 
     static bool ReleaseSDK();
 
+    void setStatus(CameraStatus newStatus);
+    CameraStatus status() const;
 };
 
 #endif // CAMERAQHYCCD_H
