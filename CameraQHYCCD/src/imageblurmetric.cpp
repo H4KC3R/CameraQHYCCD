@@ -1,6 +1,6 @@
 #include "imageblurmetric.h"
 
-double ImageBlurMetric::getBlurLaplacian(const cv::Mat image, double& result){
+bool ImageBlurMetric::getBlurLaplacian(const cv::Mat image, double& result) {
     if(image.dims != 2)
         return false;
 

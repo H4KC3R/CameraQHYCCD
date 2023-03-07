@@ -1,40 +1,54 @@
 #include "imagepipeline.h"
 
 ImagePipeline::ImagePipeline() {
-
 }
 
-void ImagePipeline::setImage(CamImage *frame) {
-    CamImage acquiredImg;
-
-    acquiredImg.time = frame->time;
-
-    acquiredImg.w = frame->w;
-    acquiredImg.h = frame->h;
-    acquiredImg.bpp = frame->bpp;
-    acquiredImg.channels = frame->channels;
-    acquiredImg.length = frame->length;
-
-
-
+ImagePipeline::~ImagePipeline() {
+    mList.clear();
 }
 
-std::list <CamImage>::const_iterator ImagePipeline::getFirstFrame() {
-    std::list <CamImage>::const_iterator it = mList.cbegin();
-    while (it == mList.cend()) {
-        std::shared_lock lock(mMutex);
-        if (mList.size() != 0) {
-            it = mList.begin();
+void ImagePipeline::clearPipeline() {
+    mList.clear();
+}
+
+void ImagePipeline::setFrame(CamImage *frame) {
+    if(mList.size() == 2) {
+        if(count == mSize){
+            // Доступ ко второму элементу
+            std::shared_lock lock(mMutex);
+            auto it = std::next(mList.cbegin(), 1);
+            it = mList.erase(it);
+            mList.insert(it,*frame);
+            count = 1;
         }
+        else {
+            std::shared_lock lock(mMutex);
+            auto it = mList.cbegin();
+            it = mList.erase(it);
+            mList.insert(it,*frame);
+            count++;
+        }
+    }
+    else {
+        std::shared_lock lock(mMutex);
+        mList.push_back(*frame);
+    }
+}
+
+const std::list <CamImage>::const_iterator ImagePipeline::getFirstFrame() {
+    std::list <CamImage>::const_iterator it = mList.cbegin();
+    if(it == mList.cend()) {
+        std::shared_lock lock(mMutex);
+        it = mList.cbegin();
     }
     return it;
 }
 
-std::list <CamImage>::const_iterator ImagePipeline::nextFrame(const std::list <CamImage>::const_iterator& it) {
+const std::list <CamImage>::const_iterator ImagePipeline::nextFrame(const std::list <T>::const_iterator& it) {
     std::list <CamImage>::const_iterator next = std::next(it, 1);
-    while (next == mList.cend()) {
+    if (next == mList.cend()) {
         std::shared_lock lock(mMutex);
-        next = std::next(it, 1);
+        next = mList.cbegin();
     }
     return next;
 }

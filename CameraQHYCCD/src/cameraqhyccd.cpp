@@ -117,6 +117,9 @@ bool CameraQHYCCD::getImageSize(uint32_t& startX, uint32_t& startY, uint32_t& si
 }
 
 bool CameraQHYCCD::setImageBitMode(BitMode bit){
+    if(mParams.mStatus != idle)
+        return false;
+
     if(bit == bit8) {
         uint32_t ret = IsQHYCCDControlAvailable(pCamhandle, CAM_8BITS);
         if(ret == QHYCCD_SUCCESS)
@@ -165,14 +168,16 @@ CamParameters CameraQHYCCD::getCameraParameters() {
 bool CameraQHYCCD::startSingleCapture() {
     if(mParams.mIsLiveMode)
         return false;
+    mPipeline.clearPipeline();
 
+    CamImage img;
     mParams.mStatus = singleCapture;
     uint32_t ret = ExpQHYCCDSingleFrame(pCamhandle);
-    if(ret == QHYCCD_SUCCESS)
-        return true;
-    else {
-        mParams.mStatus = failed;
-        return false;
+    if(ret == QHYCCD_SUCCESS) {
+        ret = GetQHYCCDSingleFrame(pCamhandle, &img.w, &img.h, &img.bpp, &img.channels, img.data);
+        if(ret == QHYCCD_SUCCESS){
+            mPipeline.setFrame(img);
+        }
     }
 }
 

@@ -7,7 +7,7 @@
 
 struct CamParameters
 {
-    char mModel[12];         // camera model
+    char mModel[20];         // camera model
     bool mIsMono;            // mono or color
     bool mIsLiveMode;        // camera mode
     bool mIsConnected = false;
@@ -20,6 +20,9 @@ struct CamParameters
     double mPixelh;          // chip pixel size height (in um)
     uint32_t mMaximgw;       // maximum chip output image width
     uint32_t mMaximgh;       // maximum chip output image height
+
+
+
     uint32_t mBpp;           // chip pixel depth
 
     uint8_t mWbin;

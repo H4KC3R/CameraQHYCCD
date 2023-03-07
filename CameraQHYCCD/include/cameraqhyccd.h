@@ -2,15 +2,20 @@
 #define CAMERAQHYCCD_H
 
 #include "qhyccd.h"
+#include "imagepipeline.h"
 #include "camstruct.h"
 #include "camenums.h"
 
 class CameraQHYCCD
 {
 private:
+    ImagePipeline<CamImage> mPipeline;
+
     qhyccd_handle *pCamhandle;
     static bool mIsSdkInited;
     CamParameters mParams;
+
+
 
 public:
     CameraQHYCCD(char* id);
