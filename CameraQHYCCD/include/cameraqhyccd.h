@@ -65,8 +65,6 @@ public:
 
     static bool ReleaseSDK();
 
-    void setStatus(CameraStatus newStatus);
-
     CameraStatus status() const;
 };
 

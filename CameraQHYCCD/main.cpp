@@ -13,215 +13,231 @@ void findFocus();
 void blurDetectionExample();
 
 int main() {
-
+    cameraExample();
     return 0;
 }
 
-//void objectiveExample(){
-//    ObjectiveController myController("COM6");
-//    double result = myController.getCurrentFocusing();
-//    cout << result << endl;
-//    myController.setFocusing(0);
-//    myController.setFocusing(5000);
-//    myController.setFocusing(3500);
-//    myController.setFocusing(2600);
-//    result = myController.getCurrentFocusing();
-//    cout << result << endl;
-//    myController.setFocusing(4300);
-//    result = myController.getCurrentFocusing();
+void objectiveExample(){
+    ObjectiveController myController("COM6");
+    double result = myController.getCurrentFocusing();
+    cout << result << endl;
+    myController.setFocusing(0);
+    myController.setFocusing(5000);
+    myController.setFocusing(3500);
+    myController.setFocusing(2600);
+    result = myController.getCurrentFocusing();
+    cout << result << endl;
+    myController.setFocusing(4300);
+    result = myController.getCurrentFocusing();
 
-//    cout << result << endl;
-//}
+    cout << result << endl;
+}
 
-//void cameraExample(){
-//    CameraQHYCCD* myCamera;
-//    if(!CameraQHYCCD::initSDK()) {
-//        cout << "Init SDK fail" << endl;
-//        return;
-//    }
+void cameraExample(){
+    CameraQHYCCD* myCamera;
+    if(!CameraQHYCCD::initSDK()) {
+        cout << "Init SDK fail" << endl;
+        return;
+    }
 
-//    int num = 0;
-//    num = CameraQHYCCD::searchCamera();
-//    if(num >= 1) {
-//        char id[32];
-//        cout << "Camera found: " << num << endl;
-//        if(!CameraQHYCCD::getID(0,id)) {
-//            cout << "ID getting fail" << endl;
-//            return;
-//        }
-//        myCamera = new CameraQHYCCD(id);
-//        int32_t mode = live;
+    int num = 0;
+    num = CameraQHYCCD::searchCamera();
+    if(num >= 1) {
+        char id[32];
+        cout << "Camera found: " << num << endl;
+        if(!CameraQHYCCD::getID(0,id)) {
+            cout << "ID getting fail" << endl;
+            return;
+        }
+        myCamera = new CameraQHYCCD(id);
 
-//        cout << "Select camera stream: " << endl << "0.single" << endl << "1.live" << endl;
-//        cin >> mode;
+        int32_t mode = live;
 
-//        if((mode < 0) || (mode > 1))
-//            cout << "error stream mode" << endl;
-//        myCamera->connect((StreamMode)mode);
+        cout << "Select camera stream: " << endl << "0.single" << endl << "1.live" << endl;
+        cin >> mode;
 
-//        double min, max, step;
+        if((mode < 0) || (mode > 1))
+            cout << "error stream mode" << endl;
+        myCamera->connect((StreamMode)mode);
 
-//        if (myCamera->getControlMinMaxStep(gain, min, max, step))
-//            cout << "gain max: " << max << " " << "gain min: " << min  << " " << "gain step: " << step << " " << endl;
-//        else
-//            cout << "gain is not available in this camera" << endl;
+        double min, max, step;
 
-//        if (myCamera->getControlMinMaxStep(offset, min, max, step))
-//            cout << "offset max: " << max << " " << "offset min: " << min << " " << "offset step: " << step << " " << endl;
-//        else
-//            cout << "offset is not available in this camera" << endl;
+        if (myCamera->getControlMinMaxStep(gain, min, max, step))
+            cout << "gain max: " << max << " " << "gain min: " << min  << " " << "gain step: " << step << " " << endl;
+        else
+            cout << "gain is not available in this camera" << endl;
 
-//        if (myCamera->getControlMinMaxStep(exposure, min, max, step))
-//            cout << "exposure max: " << max << " " << "exposure min: " << min << " " << "exposure step: " << step << " " << endl;
-//        else
-//            cout << "exposure is not available in this camera" << endl;
+        if (myCamera->getControlMinMaxStep(offset, min, max, step))
+            cout << "offset max: " << max << " " << "offset min: " << min << " " << "offset step: " << step << " " << endl;
+        else
+            cout << "offset is not available in this camera" << endl;
 
-//        if (myCamera->getControlMinMaxStep(speed, min, max, step))
-//            cout << "speed max: " << max << " " << "speed min: " << min << " " << "speed step: " << step << " " << endl;
-//        else
-//            cout << "speed is not available in this camera" << endl;
+        if (myCamera->getControlMinMaxStep(exposure, min, max, step))
+            cout << "exposure max: " << max << " " << "exposure min: " << min << " " << "exposure step: " << step << " " << endl;
+        else
+            cout << "exposure is not available in this camera" << endl;
 
-//        if (myCamera->getControlMinMaxStep(transferbit, min, max, step))
-//            cout << "transferbit max: " << max << " " << "transferbit min: " << min << " " << "transferbit step: " << step << " " << endl;
-//        else
-//            cout << "transferbit is not available in this camera" << endl;
+        if (myCamera->getControlMinMaxStep(speed, min, max, step))
+            cout << "speed max: " << max << " " << "speed min: " << min << " " << "speed step: " << step << " " << endl;
+        else
+            cout << "speed is not available in this camera" << endl;
 
-//        if (myCamera->getControlMinMaxStep(usbtraffic, min, max, step))
-//            cout << "usbtraffic max: " << max << " " << "usbtraffic min: " << min << " " << "usbtraffic step: " << step << " " << endl;
-//        else
-//            cout << "usbtraffic is not available in this camera" << endl;
+        if (myCamera->getControlMinMaxStep(transferbit, min, max, step))
+            cout << "transferbit max: " << max << " " << "transferbit min: " << min << " " << "transferbit step: " << step << " " << endl;
+        else
+            cout << "transferbit is not available in this camera" << endl;
 
-//        cout << "Exposure: " << myCamera->getExposure() << " ms" << endl;
-//        cout << "Gain: " << myCamera->getGain() << endl;
-//        cout << "Bit:  " << myCamera->getImageBitMode() << endl;
+        if (myCamera->getControlMinMaxStep(usbtraffic, min, max, step))
+            cout << "usbtraffic max: " << max << " " << "usbtraffic min: " << min << " " << "usbtraffic step: " << step << " " << endl;
+        else
+            cout << "usbtraffic is not available in this camera" << endl;
 
-//        myCamera->setExposure(215);
-//        myCamera->setGain(0);
-//        myCamera->setImageBitMode(bit8);
+        cout << "Exposure: " << myCamera->getExposure() << " ms" << endl;
+        cout << "Gain: " << myCamera->getGain() << endl;
+        cout << "Bit:  " << myCamera->getImageBitMode() << endl;
 
-//        cout << "Exposure: " << myCamera->getExposure() << " ms" << endl;
-//        cout << "Gain: " << myCamera->getGain() << endl;
-//        cout << "Bit:  " << myCamera->getImageBitMode() << endl;
+        myCamera->setExposure(10);
+        myCamera->setGain(30);
+        myCamera->setImageBitMode(bit8);
 
-//        uint32_t startX = 0, startY = 0, sizeX = 0, sizeY = 0;
-//        myCamera->getImageSize(startX, startY, sizeX, sizeY);
+        cout << "Exposure: " << myCamera->getExposure() << " ms" << endl;
+        cout << "Gain: " << myCamera->getGain() << endl;
+        cout << "Bit:  " << myCamera->getImageBitMode() << endl;
 
-//        cout << "StartX: " << startX << endl;
-//        cout << "StartY: " << startY << endl;
-//        cout << "SizeX:  " << sizeX << endl;
-//        cout << "SizeY:  " << sizeY << endl;
+        uint32_t startX = 0, startY = 0, sizeX = 0, sizeY = 0;
+        myCamera->getImageSize(startX, startY, sizeX, sizeY);
 
-//        myCamera->setImageSize(startX, startY, sizeX, sizeY);
-//        myCamera->getImageSize(startX, startY, sizeX, sizeY);
+        cout << "StartX: " << startX << endl;
+        cout << "StartY: " << startY << endl;
+        cout << "SizeX:  " << sizeX << endl;
+        cout << "SizeY:  " << sizeY << endl;
 
-//        cout << "StartX: " << startX << endl;
-//        cout << "StartY: " << startY << endl;
-//        cout << "SizeX:  " << sizeX << endl;
-//        cout << "SizeY:  " << sizeY << endl;
+        myCamera->setImageSize(startX, startY, sizeX, sizeY);
+        myCamera->getImageSize(startX, startY, sizeX, sizeY);
 
-//        CamImage myImg;
+        cout << "StartX: " << startX << endl;
+        cout << "StartY: " << startY << endl;
+        cout << "SizeX:  " << sizeX << endl;
+        cout << "SizeY:  " << sizeY << endl;
 
-//        CamParameters params = myCamera->getCameraParameters();
+        CamParameters params = myCamera->getCameraParameters();
+        uint32_t length = params.mMaximgh * params.mMaximgw * 2;
 
-//        if(!(params.mIsLiveMode)){
-//            if(myCamera->startSingleCapture()) {
-//                myImg.length = myCamera->getImgLength();
-//                uint8_t* data = new uint8_t[myImg.length * 2];
-//                myCamera->getImage(myImg.w, myImg.h, myImg.bpp, myImg.channels, data);
-//                cout << myImg.bpp << " " << myImg.channels << endl;
-//                int type = ImageProcess::getOpenCvType((BitMode)myImg.bpp, myImg.channels);
-//                myImg.img = cv::Mat(myImg.h, myImg.w, type, data);
+        ImagePipeline mPipeline(length);
+        int frameCount = 1;
 
-//                std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-//                CamImage debImg = ImageProcess::debayerImg(myImg);
-//                std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-//                std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
+        if(!params.mIsMono && params.mIsLiveMode){
+            cv::namedWindow("Camera image", cv::WINDOW_NORMAL);
+            cv::resizeWindow("Camera image", 600, 600);
 
-//                cv::imshow("Debayer image", debImg.img);
+            cv::namedWindow("WB image", cv::WINDOW_NORMAL);
+            cv::resizeWindow("WB image", 600, 600);
 
-//                begin = std::chrono::steady_clock::now();
-//                CamImage wbImg = ImageProcess::whiteBalanceImg(debImg);
-//                end = std::chrono::steady_clock::now();
-//                std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
+            cv::namedWindow("Debayer image", cv::WINDOW_NORMAL);
+            cv::resizeWindow("Debayer image", 600, 600);
 
-//                cv::imshow("White balanced image", wbImg.img);
-
-//                cv::waitKey(0);
-//                delete[] data;
-//            }
-//        }
-//        else {
-//            if(myCamera->startLiveCapture()) {
-//                myImg.length = myCamera->getImgLength();
-//                uint8_t* data = new uint8_t[myImg.length];
-//                bool ready = false;
-//                while(ready == false)
-//                    ready = myCamera->getImage(myImg.w, myImg.h, myImg.bpp, myImg.channels, data);
-//                myCamera->stopLiveCapture();
-
-//                int type = ImageProcess::getOpenCvType((BitMode)myImg.bpp, myImg.channels);
-//                myImg.img = cv::Mat(myImg.h, myImg.w, type, data);
-//                cout << myImg.img.size << endl;
-
-//                cv::namedWindow("Camera image", cv::WINDOW_NORMAL);
-//                cv::resizeWindow("Camera image", 600, 600);
-
-//                cv::namedWindow("WB image", cv::WINDOW_NORMAL);
-//                cv::resizeWindow("WB image", 600, 600);
-
-//                cv::namedWindow("Debayer image", cv::WINDOW_NORMAL);
-//                cv::resizeWindow("Debayer image", 600, 600);
-
-//                cv::namedWindow("GrayScale image", cv::WINDOW_NORMAL);
-//                cv::resizeWindow("GrayScale image", 600, 600);
-
-//                cv::imshow("Camera image", myImg.img);
-
-//                std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-//                CamImage debImg = ImageProcess::debayerImg(myImg);
-//                std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-//                std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
-
-//                cv::imshow("Debayer image", debImg.img);
-
-//                cv::Mat grayScale;
-//                cv::cvtColor(debImg.img, grayScale, cv::COLOR_BGR2GRAY);
-//                cv::imshow("GrayScale image", grayScale);
+            cv::namedWindow("GrayScale image", cv::WINDOW_NORMAL);
+            cv::resizeWindow("GrayScale image", 600, 600);
+        }
 
 
+        if(!(params.mIsLiveMode)){
+            if(myCamera->startSingleCapture()) {
+                auto firstFrame = mPipeline.getFirstFrame();
+                myCamera->getImage(firstFrame->w, firstFrame->h, firstFrame->bpp,
+                                   firstFrame->channels, firstFrame->data);
+                cout << firstFrame->w << " " << firstFrame->h << endl;
 
-//                begin = std::chrono::steady_clock::now();
-//                CamImage wbImg = ImageProcess::whiteBalanceImg(debImg);
-//                end = std::chrono::steady_clock::now();
-//                std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
+                int type = ImageProcess::getOpenCvType((BitMode)firstFrame->bpp, firstFrame->channels);
+                cv::Mat camImg(firstFrame->h, firstFrame->w, type, firstFrame->data);
+                cv::imshow("Camera image", camImg);
 
-//                cv::imshow("WB image", wbImg.img);
+                if(!params.mIsMono){
+                    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+                    cv::Mat debImg = ImageProcess::debayerImg(camImg);
+                    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+                    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
 
-//                double sobel = ImageBlurMetric::getBlurSobel(grayScale);
-//                double scharr = ImageBlurMetric::getBlurScharr(grayScale);
-//                double laplacian = ImageBlurMetric::getBlurLaplacian(grayScale);
-//                double fft = ImageBlurMetric::getBlurFFT(grayScale);
+                    cv::imshow("Debayer image", debImg);
 
-//                std::cout << "Sobel     " << sobel << endl;
-//                std::cout << "Scharr    " << scharr << endl;
-//                std::cout << "Laplacian     " << laplacian << endl;
-//                std::cout << "FFT " << fft << endl;
+                    begin = std::chrono::steady_clock::now();
+                    cv::Mat wbImg = ImageProcess::whiteBalanceImg(debImg);
+                    end = std::chrono::steady_clock::now();
+                    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
+
+                    cv::imshow("White balanced image", wbImg);
+                }
 
 //                ofstream binaryFile ("file2.raw", ios::out | ios::binary);
-//                binaryFile.write ((char*)data, myImg.w * myImg.h);
+//                binaryFile.write ((char*)data, myImg.length);
 //                binaryFile.close();
+                cv::waitKey(0);
+            }
+        }
+        else {
+            if(myCamera->startLiveCapture()) {
+                bool ready = false;
+                auto frame = mPipeline.getFirstFrame();
 
-//                cv::waitKey(0);
-//                delete[] data;
-//            }
-//        }
+                for(int i = 0; i < 15; i++) {
+                    while(ready == false)
+                        ready = myCamera->getImage(frame->w, frame->h, frame->bpp,
+                                                   frame->channels, frame->data);
 
-//        myCamera->disconnect();
-//        CameraQHYCCD::ReleaseSDK();
-//    }
-//    else
-//        cout << "Camera found   : " << num << endl;
-//}
+                    frameCount++;
+                    int type = ImageProcess::getOpenCvType((BitMode)frame->bpp, frame->channels);
+                    cv::Mat camImg(frame->h, frame->w, type, frame->data);
+
+                    cv::imshow("Camera image", camImg);
+                    cv::waitKey(100);
+
+                    if(!params.mIsMono){
+                        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+                        cv::Mat debImg = ImageProcess::debayerImg(camImg);
+                        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+                        std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
+
+                        cv::imshow("Debayer image", debImg);
+
+                        cv::Mat grayScale;
+                        cv::cvtColor(debImg, grayScale, cv::COLOR_BGR2GRAY);
+                        cv::imshow("GrayScale image", grayScale);
+
+                        begin = std::chrono::steady_clock::now();
+                        cv::Mat wbImg = ImageProcess::whiteBalanceImg(debImg);
+                        end = std::chrono::steady_clock::now();
+                        std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
+
+                        cv::imshow("WB image", wbImg);
+
+                        double sobel = 0,  scharr = 0, laplacian = 0, fft = 0;
+
+                        ImageBlurMetric::getBlurSobel(grayScale, sobel);
+                        ImageBlurMetric::getBlurScharr(grayScale, scharr);
+                        ImageBlurMetric::getBlurLaplacian(grayScale, laplacian);
+                        ImageBlurMetric::getBlurFFT(grayScale, fft);
+
+                        std::cout << "Sobel     " << sobel << endl;
+                        std::cout << "Scharr    " << scharr << endl;
+                        std::cout << "Laplacian     " << laplacian << endl;
+                        std::cout << "FFT " << fft << endl;
+                    }
+
+                    ready = false;
+                    frame = mPipeline.nextFrame(frame);
+                    cout << "frame count: " << frameCount << endl;
+                }
+
+                myCamera->stopLiveCapture();
+            }
+        }
+
+        myCamera->disconnect();
+        CameraQHYCCD::ReleaseSDK();
+    }
+    else
+        cout << "Camera found   : " << num << endl;
+}
 
 //void findFocus(){
 //    ObjectiveController myController("COM6");

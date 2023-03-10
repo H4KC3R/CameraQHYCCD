@@ -27,8 +27,7 @@ struct CamParameters
 
 struct CamImage{
     uint8_t* data;
-
-    std::time_t time;
+    std::chrono::steady_clock::time_point time;
 
     uint32_t w = 0;
     uint32_t h = 0;

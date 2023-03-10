@@ -121,7 +121,7 @@ bool CameraQHYCCD::getImageSize(uint32_t& startX, uint32_t& startY, uint32_t& si
 }
 
 bool CameraQHYCCD::setImageBitMode(BitMode bit){
-    if(mParams.mStatus != idle)
+    if(mStatus != idle)
         return false;
 
     if(bit == bit8) {
@@ -176,7 +176,6 @@ bool CameraQHYCCD::startSingleCapture() {
     mStatus = singleCapture;
     uint32_t ret = ExpQHYCCDSingleFrame(pCamhandle);
     if(ret == QHYCCD_SUCCESS) {
-        mStatus = idle;
         return true;
     }
     else{
@@ -186,11 +185,10 @@ bool CameraQHYCCD::startSingleCapture() {
 }
 
 bool CameraQHYCCD::stopSingleCapture() {
+    mStatus = idle;
     uint32_t ret = CancelQHYCCDExposing(pCamhandle);
-    if(ret == QHYCCD_SUCCESS) {
-        mStatus = idle;
+    if(ret == QHYCCD_SUCCESS)
         return true;
-    }
     else {
         mStatus = failed;
         return false;
@@ -210,11 +208,10 @@ bool CameraQHYCCD::startLiveCapture() {
 }
 
 bool CameraQHYCCD::stopLiveCapture() {
+    mStatus = idle;
     uint32_t ret = StopQHYCCDLive(pCamhandle);
-    if(ret == QHYCCD_SUCCESS) {
-        mStatus = idle;
+    if(ret == QHYCCD_SUCCESS)
         return true;
-    }
     else {
         mStatus = failed;
         return false;
@@ -225,7 +222,7 @@ bool CameraQHYCCD::getImage(uint32_t& w, uint32_t& h, uint32_t& bpp, uint32_t& c
     uint32_t ret = 0;
     if(mStatus == singleCapture) {
         ret = GetQHYCCDSingleFrame(pCamhandle, &w, &h, &bpp, &channels, imgdata);
-        mParams.mStatus = idle;
+        mStatus = idle;
     }
     else if(mStatus == liveCapture)
         ret = GetQHYCCDLiveFrame(pCamhandle, &w, &h, &bpp, &channels, imgdata);
