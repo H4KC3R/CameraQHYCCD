@@ -20,7 +20,7 @@ public:
 
     bool disconnectController();
 
-    void setDiaphragmLevel(const int value);
+    void setDiaphragmLevel(const double value);
 
     void setFocusing(const int value);
 
@@ -32,8 +32,9 @@ public:
 
     void setAppertures(std::vector<double> appertures);
 
-private:
+    bool isContollerActive();
 
+private:
     bool testControllerActive();
     string getFocusingCmd(const int value);
     string getAppertureCmd(const int value);

@@ -17,11 +17,6 @@ struct AutoExposureParams{
 class AutoExposureHandler
 {
 private:
-    double mMaxExposure = 0;
-    double mMinExposure = 0;
-    double mMaxGain = 0;
-    double mMinGain = 0;
-
     int mProcessCounter = 0;
     int mMaxFrameCoeff = 20;
     int mDivideCoeff = 2;
@@ -31,14 +26,17 @@ private:
     double mExposureToSet;
     double mGainToSet;
 
+    double mMaxExposure, mMinExposure;
+    double mMaxGain, mMinGain;
+
     AutoExposureParams mParams;
 
 public:
 
-    AutoExposureHandler(double maxExposure, double minExposure, double maxGain,
-                        double minGain, AutoExposureParams params);
+    AutoExposureHandler(AutoExposureParams params, double maxExposure, double minExposure,
+                        double maxGain, double minGain);
 
-    bool correct(cv::Mat image, double currExposure, double currGain);
+    bool correct(cv::Mat& image, double currExposure, double currGain);
 
     // ************************** Getters ************************** //
     double getMaxExposure()             { return mMaxExposure; }

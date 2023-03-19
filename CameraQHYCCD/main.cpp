@@ -3,17 +3,20 @@
 #include "objectivecontroller.h"
 #include "imageprocess.h"
 #include "imageblurmetric.h"
+#include "camframe.h"
 #include <fstream>
 
 using namespace std;
 
-void cameraExample();
+void cameraExample(int32_t cameraMode);
 void objectiveExample();
 void findFocus();
 void blurDetectionExample();
+void testCode();
 
 int main() {
-    cameraExample();
+    /// TEST FPS AND WB
+    cameraExample(single);
     return 0;
 }
 
@@ -33,7 +36,7 @@ void objectiveExample(){
     cout << result << endl;
 }
 
-void cameraExample(){
+void cameraExample(int32_t cameraMode){
     CameraQHYCCD* myCamera;
     if(!CameraQHYCCD::initSDK()) {
         cout << "Init SDK fail" << endl;
@@ -51,7 +54,8 @@ void cameraExample(){
         }
         myCamera = new CameraQHYCCD(id);
 
-        int32_t mode = live;
+        int writeToFileFlag = false;
+        int32_t mode = cameraMode;
 
         cout << "Select camera stream: " << endl << "0.single" << endl << "1.live" << endl;
         cin >> mode;
@@ -87,11 +91,12 @@ void cameraExample(){
         else
             cout << "transferbit is not available in this camera" << endl;
 
-        if (myCamera->getControlMinMaxStep(usbtraffic, min, max, step))
+        if (myCamera->getControlMinMaxStep(fps, min, max, step))
             cout << "usbtraffic max: " << max << " " << "usbtraffic min: " << min << " " << "usbtraffic step: " << step << " " << endl;
         else
             cout << "usbtraffic is not available in this camera" << endl;
 
+        cout << "FPS: " << myCamera->getFps() << endl;
         cout << "Exposure: " << myCamera->getExposure() << " ms" << endl;
         cout << "Gain: " << myCamera->getGain() << endl;
         cout << "Bit:  " << myCamera->getImageBitMode() << endl;
@@ -122,9 +127,8 @@ void cameraExample(){
 
         CamParameters params = myCamera->getCameraParameters();
         uint32_t length = params.mMaximgh * params.mMaximgw * 2;
-
-        ImagePipeline mPipeline(length);
-        int frameCount = 1;
+        CamFrame frame;
+        frame.allocateFrame(length);
 
         if(!params.mIsMono && params.mIsLiveMode){
             cv::namedWindow("Camera image", cv::WINDOW_NORMAL);
@@ -140,75 +144,73 @@ void cameraExample(){
             cv::resizeWindow("GrayScale image", 600, 600);
         }
 
-
         if(!(params.mIsLiveMode)){
             if(myCamera->startSingleCapture()) {
-                auto firstFrame = mPipeline.getFirstFrame();
-                myCamera->getImage(firstFrame->w, firstFrame->h, firstFrame->bpp,
-                                   firstFrame->channels, firstFrame->data);
-                cout << firstFrame->w << " " << firstFrame->h << endl;
+                myCamera->getImage(frame.mWidth, frame.mHeight, frame.mBpp,
+                                   frame.mChannels, frame.pData);
+                cout << frame.mWidth << " " << frame.mHeight << endl;
 
-                int type = ImageProcess::getOpenCvType((BitMode)firstFrame->bpp, firstFrame->channels);
-                cv::Mat camImg(firstFrame->h, firstFrame->w, type, firstFrame->data);
+                int type = ImageProcess::getOpenCvType((BitMode)frame.mBpp, frame.mChannels);
+                cv::Mat camImg(frame.mHeight, frame.mWidth, type, frame.pData);
                 cv::imshow("Camera image", camImg);
 
                 if(!params.mIsMono){
                     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-                    cv::Mat debImg = ImageProcess::debayerImg(camImg);
+                    ImageProcess::debayerImg(camImg, camImg);
                     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
                     std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
 
-                    cv::imshow("Debayer image", debImg);
+                    cv::imshow("Debayer image", camImg);
 
                     begin = std::chrono::steady_clock::now();
-                    cv::Mat wbImg = ImageProcess::whiteBalanceImg(debImg);
+                    ImageProcess::whiteBalanceImg(camImg, camImg);
                     end = std::chrono::steady_clock::now();
                     std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
 
-                    cv::imshow("White balanced image", wbImg);
+                    cv::imshow("White balanced image", camImg);
                 }
 
-//                ofstream binaryFile ("file2.raw", ios::out | ios::binary);
-//                binaryFile.write ((char*)data, myImg.length);
-//                binaryFile.close();
-                cv::waitKey(0);
+                if(writeToFileFlag) {
+                    ofstream binaryFile ("file2.raw", ios::out | ios::binary);
+                    binaryFile.write ((char*)frame.pData, frame.mLength);
+                    binaryFile.close();
+                    cv::waitKey(0);
+                }
             }
         }
         else {
             if(myCamera->startLiveCapture()) {
                 bool ready = false;
-                auto frame = mPipeline.getFirstFrame();
 
                 for(int i = 0; i < 15; i++) {
                     while(ready == false)
-                        ready = myCamera->getImage(frame->w, frame->h, frame->bpp,
-                                                   frame->channels, frame->data);
+                        ready = myCamera->getImage(frame.mWidth, frame.mHeight, frame.mBpp,
+                                                   frame.mChannels, frame.pData);
 
-                    frameCount++;
-                    int type = ImageProcess::getOpenCvType((BitMode)frame->bpp, frame->channels);
-                    cv::Mat camImg(frame->h, frame->w, type, frame->data);
+                    int type = ImageProcess::getOpenCvType((BitMode)frame.mBpp, frame.mChannels);
+                    cv::Mat camImg(frame.mHeight, frame.mWidth, type, frame.pData);
 
                     cv::imshow("Camera image", camImg);
                     cv::waitKey(100);
 
                     if(!params.mIsMono){
                         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-                        cv::Mat debImg = ImageProcess::debayerImg(camImg);
+                        ImageProcess::debayerImg(camImg, camImg);
                         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
                         std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
 
-                        cv::imshow("Debayer image", debImg);
+                        cv::imshow("Debayer image", camImg);
 
                         cv::Mat grayScale;
-                        cv::cvtColor(debImg, grayScale, cv::COLOR_BGR2GRAY);
+                        cv::cvtColor(camImg, grayScale, cv::COLOR_BGR2GRAY);
                         cv::imshow("GrayScale image", grayScale);
 
                         begin = std::chrono::steady_clock::now();
-                        cv::Mat wbImg = ImageProcess::whiteBalanceImg(debImg);
+                        ImageProcess::whiteBalanceImg(camImg, camImg);
                         end = std::chrono::steady_clock::now();
                         std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
 
-                        cv::imshow("WB image", wbImg);
+                        cv::imshow("WB image", camImg);
 
                         double sobel = 0,  scharr = 0, laplacian = 0, fft = 0;
 
@@ -224,10 +226,7 @@ void cameraExample(){
                     }
 
                     ready = false;
-                    frame = mPipeline.nextFrame(frame);
-                    cout << "frame count: " << frameCount << endl;
                 }
-
                 myCamera->stopLiveCapture();
             }
         }
@@ -239,143 +238,132 @@ void cameraExample(){
         cout << "Camera found   : " << num << endl;
 }
 
-//void findFocus(){
-//    ObjectiveController myController("COM6");
-//    CameraQHYCCD* myCamera;
-//    CamImage myImg;
+void findFocus(){
+    ObjectiveController myController("COM6");
+    CameraQHYCCD* myCamera;
+    CamFrame myImg;
 
-//    cv::namedWindow("Start image", cv::WINDOW_NORMAL);
-//    cv::resizeWindow("Start image", 600, 600);
+    cv::namedWindow("Start image", cv::WINDOW_NORMAL);
+    cv::resizeWindow("Start image", 600, 600);
 
-//    cv::namedWindow("Focused image", cv::WINDOW_NORMAL);
-//    cv::resizeWindow("Focused image", 600, 600);
+    cv::namedWindow("Focused image", cv::WINDOW_NORMAL);
+    cv::resizeWindow("Focused image", 600, 600);
 
-//    cv::namedWindow("Final image", cv::WINDOW_NORMAL);
-//    cv::resizeWindow("Final image", 600, 600);
+    cv::namedWindow("Final image", cv::WINDOW_NORMAL);
+    cv::resizeWindow("Final image", 600, 600);
 
-//    if(!CameraQHYCCD::initSDK())
-//        return;
+    if(!CameraQHYCCD::initSDK())
+        return;
 
-//    int num = 0;
-//    num = CameraQHYCCD::searchCamera();
-//    if(num < 1)
-//        return;
+    int num = 0;
+    num = CameraQHYCCD::searchCamera();
+    if(num < 1)
+        return;
 
-//    char id[32];
-//    if(!CameraQHYCCD::getID(0,id))
-//        return;
+    char id[32];
+    if(!CameraQHYCCD::getID(0,id))
+        return;
 
-//    myCamera = new CameraQHYCCD(id);
-//    myCamera->connect(live);
-//    myCamera->setExposure(200);
-//    myCamera->setGain(0);
-//    myCamera->setImageBitMode(bit8);
-//    myCamera->setImageSize(700, 1750, 2000, 1500);
+    myCamera = new CameraQHYCCD(id);
+    myCamera->connect(live);
+    myCamera->setExposure(200);
+    myCamera->setGain(0);
+    myCamera->setImageBitMode(bit8);
+    myCamera->setImageSize(700, 1750, 2000, 1500);
 
-//    myImg.length = myCamera->getImgLength();
-//    uint8_t* data = new uint8_t[myImg.length * 2];
+    myImg.mLength = myCamera->getImgLength();
+    myImg.allocateFrame(myImg.mLength * 2);
 
-//    myController.setFocusing(10000);
-//    if(myCamera->startLiveCapture()) {
-//        bool ready = false;
-//        while(ready == false)
-//            ready = myCamera->getImage(myImg.w, myImg.h, myImg.bpp, myImg.channels, data);
-//        myCamera->stopLiveCapture();
-//    }
+    myController.setFocusing(10000);
+    if(myCamera->startLiveCapture()) {
+        bool ready = false;
+        while(ready == false)
+            ready = myCamera->getImage(myImg.mWidth, myImg.mHeight, myImg.mBpp,
+                                       myImg.mChannels, myImg.pData);
+        myCamera->stopLiveCapture();
+    }
 
-//    int type = ImageProcess::getOpenCvType((BitMode)myImg.bpp, myImg.channels);
-//    myImg.img = cv::Mat(myImg.h, myImg.w, type, data);
-//    CamImage debImg = ImageProcess::debayerImg(myImg);
+    int type = ImageProcess::getOpenCvType((BitMode)myImg.mBpp, myImg.mChannels);
+    cv::Mat camImg(myImg.mHeight, myImg.mWidth, type, myImg.pData);
+    ImageProcess::debayerImg(camImg, camImg);
+    cv::imshow("Start image", camImg);
 
-//    cv::imshow("Start image", debImg.img);
+    int step = 200;
+    double position = 10000;
+    double finish = 0;
 
-//    int step = 200;
-//    double position = 10000;
-//    double finish = 0;
+    double focusPosition = 0;
+    double sharpValue = 0;
 
-//    double focusPosition = 0;
-//    double sharpValue = 0;
+    while(position >= finish){
+        cout << position << endl;
+        myController.setFocusing(position);
+        if(myCamera->startLiveCapture()) {
+            bool ready = false;
+            while(ready == false)
+                ready = myCamera->getImage(myImg.mWidth, myImg.mHeight, myImg.mBpp,
+                                           myImg.mChannels, myImg.pData);
+            myCamera->stopLiveCapture();
+        }
 
-//    while(position >= finish){
-//        cout << position << endl;
-//        myController.setFocusing(position);
-//        if(myCamera->startLiveCapture()) {
-//            bool ready = false;
-//            while(ready == false)
-//                ready = myCamera->getImage(myImg.w, myImg.h, myImg.bpp, myImg.channels, data);
-//            myCamera->stopLiveCapture();
-//        }
+        int type = ImageProcess::getOpenCvType((BitMode)myImg.mBpp, myImg.mChannels);
+        cv::Mat img(myImg.mHeight, myImg.mWidth, type, myImg.pData);
 
-//        int type = ImageProcess::getOpenCvType((BitMode)myImg.bpp, myImg.channels);
-//        myImg.img = cv::Mat(myImg.h, myImg.w, type, data);
+        cv::Mat grayScale;
+        cv::cvtColor(img, grayScale, cv::COLOR_BGR2GRAY);
 
-//        CamImage tmpImg = ImageProcess::debayerImg(myImg);
-//        cv::Mat grayScale;
-//        cv::cvtColor(tmpImg.img, grayScale, cv::COLOR_BGR2GRAY);
+        ImageProcess::debayerImg(img, img);
 
-//        double metric = ImageBlurMetric::getBlurFFT(grayScale);
-//        std::string label = std::to_string(metric);
-//        cout << metric << endl;
+        double metric;
+        ImageBlurMetric::getBlurFFT(grayScale, metric);
+        std::string label = std::to_string(metric);
+        cout << metric << endl;
 
-//        cv::putText(grayScale, label, cv::Point(30,250), cv::FONT_HERSHEY_PLAIN, 10.0, CV_RGB(255,0,0), 5.0);
+        cv::putText(grayScale, label, cv::Point(30,250), cv::FONT_HERSHEY_PLAIN, 10.0, CV_RGB(255,0,0), 5.0);
 
-//        cv::imshow("Focused image", grayScale);
-//        cv::waitKey(100);
+        cv::imshow("Focused image", grayScale);
+        cv::waitKey(100);
 
-//        if(metric >= sharpValue){
-//            sharpValue = metric;
-//            focusPosition = position;
-//        }
-//        position -= step;
-//    }
+        if(metric >= sharpValue){
+            sharpValue = metric;
+            focusPosition = position;
+        }
+        position -= step;
+    }
 
-//    cout << sharpValue << endl;
-//    cout << focusPosition << endl;
+    cout << sharpValue << endl;
+    cout << focusPosition << endl;
+    cv::waitKey(0);
+}
 
-//    myController.setFocusing(10000);
-//    myController.setFocusing(focusPosition);
+void blurDetectionExample(){
+    cv::Mat frame = imread("B:/H4CK3R/CameraQHYCCD/CameraQHYCCD/doge.png", cv::IMREAD_GRAYSCALE);
+    cv::Mat frame_1 = imread("B:/H4CK3R/CameraQHYCCD/CameraQHYCCD/doge_10.png", cv::IMREAD_GRAYSCALE);
 
-//    if(myCamera->startLiveCapture()) {
-//        bool ready = false;
-//        while(ready == false)
-//            ready = myCamera->getImage(myImg.w, myImg.h, myImg.bpp, myImg.channels, data);
-//        cout << "cringe" << endl;
-//        myCamera->stopLiveCapture();
-//    }
-//    myImg.img = cv::Mat(myImg.h, myImg.w, type, data);
+    cv::namedWindow("Doge", cv::WINDOW_NORMAL);
+    cv::resizeWindow("Doge", 600, 600);
 
-//    CamImage tmpImg = ImageProcess::debayerImg(myImg);
-//    cv::Mat q;
-//    cv::cvtColor(tmpImg.img, q, cv::COLOR_BGR2GRAY);
-//    std::string label = std::to_string(sharpValue);
+    cv::namedWindow("DogeBlur", cv::WINDOW_NORMAL);
+    cv::resizeWindow("DogeBlur", 600, 600);
 
-//    cv::putText(q, label, cv::Point(30,250), cv::FONT_HERSHEY_PLAIN, 10.0, CV_RGB(255,0,0), 5.0);
+    double metric;
+    double metric_1;
 
-//    cv::imshow("Final image", q);
-//    cv::waitKey(0);
-//}
+    ImageBlurMetric::getBlurLaplacian(frame, metric);
+    ImageBlurMetric::getBlurLaplacian(frame_1, metric_1);
 
-//void blurDetectionExample(){
-//    cv::Mat frame = imread("B:/H4CK3R/CameraQHYCCD/CameraQHYCCD/doge.png", cv::IMREAD_GRAYSCALE);
-//    cv::Mat frame_1 = imread("B:/H4CK3R/CameraQHYCCD/CameraQHYCCD/doge_10.png", cv::IMREAD_GRAYSCALE);
+    std::string label = std::to_string(metric);
+    std::string label_1 = std::to_string(metric_1);
 
-//    cv::namedWindow("Doge", cv::WINDOW_NORMAL);
-//    cv::resizeWindow("Doge", 600, 600);
+    cv::putText(frame, label, cv::Point(10,15), cv::FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,255,255), 1.0);
+    cv::imshow("Doge", frame);
 
-//    cv::namedWindow("DogeBlur", cv::WINDOW_NORMAL);
-//    cv::resizeWindow("DogeBlur", 600, 600);
+    cv::putText(frame_1, label_1, cv::Point(10,15), cv::FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,255,255), 1.0);
+    cv::imshow("DogeBlur", frame_1);
 
-//    double metric = ImageBlurMetric::getBlurLaplacian(frame);
-//    double metric_1 = ImageBlurMetric::getBlurLaplacian(frame_1);
+    cv::waitKey(0);
+}
 
-//    std::string label = std::to_string(metric);
-//    std::string label_1 = std::to_string(metric_1);
-
-//    cv::putText(frame, label, cv::Point(10,15), cv::FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,255,255), 1.0);
-//    cv::imshow("Doge", frame);
-
-//    cv::putText(frame_1, label_1, cv::Point(10,15), cv::FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,255,255), 1.0);
-//    cv::imshow("DogeBlur", frame_1);
-
-//    cv::waitKey(0);
-//}
+void testCode() {
+    return;
+}

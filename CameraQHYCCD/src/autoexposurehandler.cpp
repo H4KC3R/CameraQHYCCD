@@ -1,15 +1,20 @@
 #include "autoexposurehandler.h"
 
 
-AutoExposureHandler::AutoExposureHandler(double maxExposure, double minExposure, double maxGain,
-                    double minGain, AutoExposureParams params) : mMaxExposure(maxExposure),
-    mMinExposure(minExposure), mMaxGain(maxGain), mMinGain(minGain), mParams(params)
+AutoExposureHandler::AutoExposureHandler(AutoExposureParams params, double maxExposure, double minExposure,
+                                         double maxGain, double minGain) : mParams(params)
 {
-
+    mMaxExposure = maxExposure;
+    mMinExposure = minExposure;
+    mMaxGain = maxGain;
+    mMinGain = minGain;
 }
 
 
-bool AutoExposureHandler::correct(cv::Mat image, double currExposure, double currGain) {
+bool AutoExposureHandler::correct(cv::Mat& image, double currExposure, double currGain) {
+    if(image.type() != CV_8UC1)
+        return false;
+
     int bins = 256;
     int histSize[] = {bins};
     // Set ranges for histogram bins
