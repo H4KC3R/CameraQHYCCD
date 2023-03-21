@@ -15,13 +15,14 @@ void blurDetectionExample();
 void testCode();
 
 int main() {
+    //objectiveExample();
     /// TEST FPS AND WB
     cameraExample(single);
     return 0;
 }
 
 void objectiveExample(){
-    ObjectiveController myController("COM6");
+    ObjectiveController myController("COM8");
     double result = myController.getCurrentFocusing();
     cout << result << endl;
     myController.setFocusing(0);
