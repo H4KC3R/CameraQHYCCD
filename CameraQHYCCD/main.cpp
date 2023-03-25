@@ -1,23 +1,49 @@
 #include <iostream>
+#include "framepipeline.h"
 #include "cameraqhyccd.h"
 #include "objectivecontroller.h"
 #include "imageprocess.h"
 #include "imageblurmetric.h"
+#include <thread>
 #include "camframe.h"
 #include <fstream>
 
 using namespace std;
 
+volatile bool stopProcessing = true;
+
 void cameraExample(int32_t cameraMode);
 void objectiveExample();
 void findFocus();
 void blurDetectionExample();
-void testCode();
+void testCameraMultithreading();
+
+FramePipeline pipeline;
+
+void showImage() {
+    cv::namedWindow("Camera image", cv::WINDOW_NORMAL);
+    cv::resizeWindow("Camera image", 600, 600);
+
+    auto frame = pipeline.getFirstFrame();
+    while(true) {
+        int type = ImageProcess::getOpenCvType((BitMode)frame->mBpp, frame->mChannels);
+        cv::Mat camImg(frame->mHeight, frame->mWidth, type, frame->pData);
+
+        ImageProcess::debayerImg(camImg, camImg);
+        ImageProcess::whiteBalanceImg(camImg, camImg);
+
+        cv::imshow("Camera image", camImg);
+        cv::waitKey(1);
+        frame = pipeline.nextFrame(frame);
+    }
+}
 
 int main() {
-    //objectiveExample();
-    /// TEST FPS AND WB
     cameraExample(single);
+//    pipeline.activatePipelineRead(true);
+//    std::thread thread(showImage);
+//    testCameraMultithreading();
+//    thread.join();
     return 0;
 }
 
@@ -102,7 +128,7 @@ void cameraExample(int32_t cameraMode){
         cout << "Gain: " << myCamera->getGain() << endl;
         cout << "Bit:  " << myCamera->getImageBitMode() << endl;
 
-        myCamera->setExposure(10);
+        myCamera->setExposure(50);
         myCamera->setGain(30);
         myCamera->setImageBitMode(bit8);
 
@@ -131,7 +157,7 @@ void cameraExample(int32_t cameraMode){
         CamFrame frame;
         frame.allocateFrame(length);
 
-        if(!params.mIsMono && params.mIsLiveMode){
+        if(!params.mIsMono){
             cv::namedWindow("Camera image", cv::WINDOW_NORMAL);
             cv::resizeWindow("Camera image", 600, 600);
 
@@ -149,7 +175,12 @@ void cameraExample(int32_t cameraMode){
             if(myCamera->startSingleCapture()) {
                 myCamera->getImage(frame.mWidth, frame.mHeight, frame.mBpp,
                                    frame.mChannels, frame.pData);
+
+                pipeline.setFrame(frame);
                 cout << frame.mWidth << " " << frame.mHeight << endl;
+                cout << frame.mBpp << " " << frame.mChannels << endl;
+
+                auto pFrame = pipeline.getFirstFrame();
 
                 int type = ImageProcess::getOpenCvType((BitMode)frame.mBpp, frame.mChannels);
                 cv::Mat camImg(frame.mHeight, frame.mWidth, type, frame.pData);
@@ -168,7 +199,8 @@ void cameraExample(int32_t cameraMode){
                     end = std::chrono::steady_clock::now();
                     std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
 
-                    cv::imshow("White balanced image", camImg);
+                    cv::imshow("WB image", camImg);
+                    cv::waitKey(0);
                 }
 
                 if(writeToFileFlag) {
@@ -365,6 +397,43 @@ void blurDetectionExample(){
     cv::waitKey(0);
 }
 
-void testCode() {
-    return;
+void testCameraMultithreading() {
+    CameraQHYCCD* myCamera;
+    if(!CameraQHYCCD::initSDK())
+        return;
+
+    int num = 0;
+    num = CameraQHYCCD::searchCamera();
+
+    if(num < 1)
+        return;
+
+    char id[32];
+    if(!CameraQHYCCD::getID(0,id))
+        return;
+    myCamera = new CameraQHYCCD(id);
+    myCamera->connect((StreamMode)live);
+    myCamera->setExposure(10);
+    myCamera->setGain(30);
+    myCamera->setImageBitMode(bit8);
+
+    CamParameters params = myCamera->getCameraParameters();
+    uint32_t length = params.mMaximgh * params.mMaximgw * 2;
+    CamFrame frame;
+    frame.allocateFrame(length);
+
+    if(myCamera->startLiveCapture()) {
+        bool ready = false;
+        for(int i = 0; i < 15; i++) {
+            while(ready == false)
+                ready = myCamera->getImage(frame.mWidth, frame.mHeight, frame.mBpp,
+                                           frame.mChannels, frame.pData);
+
+            pipeline.setFrame(frame);
+            ready = false;
+        }
+        stopProcessing = false;
+        pipeline.activatePipelineRead(false);
+        myCamera->stopLiveCapture();
+    }
 }
