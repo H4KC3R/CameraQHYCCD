@@ -17,6 +17,7 @@ set(SOURCES
     src/serialib.cpp
     src/framepipeline.cpp
     src/camframe.cpp
+    src/focusingFSM.cpp
     include/cameraqhyccd.h
     include/camstruct.h
     include/camenums.h
@@ -27,12 +28,11 @@ set(SOURCES
     include/serialib.h
     include/imageblurmetric.h
     include/framepipeline.h
+    include/focusingFSM.h
 )
 
 add_executable(CameraQHYCCD ${SOURCES})
 
 target_include_directories(CameraQHYCCD PRIVATE "include/" "include/CameraSDK_include" ${OpenCV_INCLUDE_DIRS})
-
 target_link_directories(CameraQHYCCD PRIVATE "lib/" )
-
 target_link_libraries(CameraQHYCCD PRIVATE qhyccd PRIVATE ${OpenCV_LIBS})
