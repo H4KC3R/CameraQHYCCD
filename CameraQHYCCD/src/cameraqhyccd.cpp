@@ -4,13 +4,16 @@
 
 bool CameraQHYCCD::mIsSdkInited = false;
 
-CameraQHYCCD::CameraQHYCCD(char* id) {
-    if(id == NULL)
+CameraQHYCCD::CameraQHYCCD(std::string id) {
+    if(id.empty())
         throw std::logic_error("Id address is null");
-    pCamhandle = OpenQHYCCD(id);
+
+    char camId[id.length() + 1];
+    strcpy(camId, id.c_str());
+    pCamhandle = OpenQHYCCD(camId);
     if(pCamhandle == NULL)
         throw std::logic_error("Failed to open camera!");
-    uint32_t ret = GetQHYCCDModel(id, mParams.mModel);
+    uint32_t ret = GetQHYCCDModel(camId, mParams.model);
     if(ret != QHYCCD_SUCCESS)
         throw std::logic_error("Failed to read model!");
 }
@@ -32,9 +35,17 @@ int32_t CameraQHYCCD::searchCamera(){
     return num;
 }
 
-bool CameraQHYCCD::getID(int32_t num, char* id){
+std::string CameraQHYCCD::getID(int32_t num){
+    char id[40];
+    std::string camId;
+
     uint32_t ret = GetQHYCCDId(num, id);
-    return (ret == QHYCCD_SUCCESS);
+    if(ret == QHYCCD_SUCCESS)
+        camId = id;
+    else
+        camId = "";
+
+    return camId;
 }
 
 std::string CameraQHYCCD::getModel(char *id) {
@@ -60,41 +71,44 @@ bool CameraQHYCCD::connect(StreamMode mode) {
 
     ret = IsQHYCCDControlAvailable(pCamhandle, CAM_COLOR);
     if(ret == BAYER_GB || ret == BAYER_GR || ret == BAYER_BG ||ret == BAYER_RG)
-        mParams.mIsMono = false;
+        mParams.isMono = false;
     else
-        mParams.mIsMono = true;
+        mParams.isMono = true;
 
     uint32_t imagew, imageh, bpp;
     double chipw, chiph, pixelw, pixelh;
 
     ret = GetQHYCCDChipInfo(pCamhandle, &chipw, &chiph, &imagew, &imageh, &pixelw, &pixelh, &bpp);
     if(ret == QHYCCD_SUCCESS){
-        mParams.mChipw = chipw;
-        mParams.mChiph = chiph;
-        mParams.mPixelw = pixelw;
-        mParams.mPixelh = pixelh;
-        mParams.mMaximgw = imagew;
-        mParams.mMaximgh = imageh;
+        mParams.chipw = chipw;
+        mParams.chiph = chiph;
+        mParams.pixelw = pixelw;
+        mParams.pixelh = pixelh;
+        mParams.maximgw = imagew;
+        mParams.maximgh = imageh;
     }
     else
         return false;
 
-    mParams.mWbin = 1;
-    mParams.mHbin = 1;
-    ret = SetQHYCCDBinMode(pCamhandle, mParams.mWbin, mParams.mHbin);
+    mParams.wbin = 1;
+    mParams.hbin = 1;
+    ret = SetQHYCCDBinMode(pCamhandle, mParams.wbin, mParams.hbin);
     if(ret != QHYCCD_SUCCESS)
         return false;
 
-    mParams.mIsLiveMode = (mode == live);
-    mParams.mIsConnected = true;
+    mParams.isLiveMode = (mode == live);
+    mParams.isConnected = true;
 
-    if(!mParams.mIsMono)
+    if(!mParams.isMono)
         SetQHYCCDDebayerOnOff(pCamhandle,false);
 
     return true;
 }
 
 bool CameraQHYCCD::getControlMinMaxStep(CameraControls control, double& min, double& max, double& step) {
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
     uint32_t ret = IsQHYCCDControlAvailable(pCamhandle, (CONTROL_ID)control);
     if(ret != QHYCCD_SUCCESS)
         return false;
@@ -107,63 +121,98 @@ bool CameraQHYCCD::getControlMinMaxStep(CameraControls control, double& min, dou
 }
 
 bool CameraQHYCCD::setImageSize(uint32_t x, uint32_t y, uint32_t xsize, uint32_t ysize) {
-    uint32_t ret = SetQHYCCDResolution(pCamhandle, x, y, xsize/mParams.mWbin, ysize/mParams.mHbin);
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
+    uint32_t ret = SetQHYCCDResolution(pCamhandle, x, y, xsize/mParams.wbin, ysize/mParams.hbin);
     return (ret == QHYCCD_SUCCESS);
 }
 
 bool CameraQHYCCD::getImageSize(uint32_t& startX, uint32_t& startY, uint32_t& sizeX, uint32_t& sizeY) {
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
     uint32_t ret = GetQHYCCDEffectiveArea(pCamhandle, &startX, &startY, &sizeX, &sizeY);
     return (ret == QHYCCD_SUCCESS);
 }
 
 bool CameraQHYCCD::setImageBitMode(BitMode bit){
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
     if(bit == bit8) {
         uint32_t ret = IsQHYCCDControlAvailable(pCamhandle, CAM_8BITS);
         if(ret == QHYCCD_SUCCESS)
             ret = SetQHYCCDBitsMode(pCamhandle, 8);
         return (ret == QHYCCD_SUCCESS);
     }
-    else {
+    else if(bit == bit16){
         uint32_t ret = IsQHYCCDControlAvailable(pCamhandle, CAM_16BITS);
         if(ret == QHYCCD_SUCCESS)
             ret = SetQHYCCDBitsMode(pCamhandle, 16);
         return (ret == QHYCCD_SUCCESS);
     }
+    else
+        return false;
 }
 
 uint32_t CameraQHYCCD::getImageBitMode(){
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
     return ((uint32_t)GetQHYCCDParam(pCamhandle, CONTROL_TRANSFERBIT));
 }
 
-bool CameraQHYCCD::setFps(double fps) {
-    uint32_t ret = SetQHYCCDParam(pCamhandle, CONTROL_USBTRAFFIC, fps);
+bool CameraQHYCCD::setUsbTraffic(double value) {
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
+    uint32_t ret = SetQHYCCDParam(pCamhandle, CONTROL_USBTRAFFIC, value);
     return (ret == QHYCCD_SUCCESS);
 }
 
-double CameraQHYCCD::getFps() {
+double CameraQHYCCD::getUsbTraffic() {
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
     return GetQHYCCDParam(pCamhandle, CONTROL_USBTRAFFIC);
 }
 
 bool CameraQHYCCD::setGain(double gain) {
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
     uint32_t ret = SetQHYCCDParam(pCamhandle, CONTROL_GAIN, gain);
     return (ret == QHYCCD_SUCCESS);
 }
 
 double CameraQHYCCD::getGain(void) {
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
     return GetQHYCCDParam(pCamhandle, CONTROL_GAIN);
 }
 
 bool CameraQHYCCD::setExposure(double ms) {
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
     uint32_t ret = SetQHYCCDParam(pCamhandle, CONTROL_EXPOSURE, ms * 1000.0);
     return (ret == QHYCCD_SUCCESS);
 }
 
 double CameraQHYCCD::getExposure(void) {
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
     // return in ms
     return (GetQHYCCDParam(pCamhandle, CONTROL_EXPOSURE) / 1000);
 }
 
 uint32_t CameraQHYCCD::getImgLength() {
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
     return GetQHYCCDMemLength(pCamhandle);
 }
 
@@ -172,7 +221,10 @@ CamParameters CameraQHYCCD::getCameraParameters() {
 }
 
 bool CameraQHYCCD::startSingleCapture() {
-    if(mParams.mIsLiveMode)
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
+    if(mParams.isLiveMode)
         return false;
 
     uint32_t ret = ExpQHYCCDSingleFrame(pCamhandle);
@@ -180,23 +232,35 @@ bool CameraQHYCCD::startSingleCapture() {
 }
 
 bool CameraQHYCCD::stopSingleCapture() {
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
     uint32_t ret = CancelQHYCCDExposing(pCamhandle);
     return (ret == QHYCCD_SUCCESS);
 }
 
 bool CameraQHYCCD::startLiveCapture() {
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
     uint32_t ret = BeginQHYCCDLive(pCamhandle);
     return (ret == QHYCCD_SUCCESS);
 }
 
 bool CameraQHYCCD::stopLiveCapture() {
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
     uint32_t ret = StopQHYCCDLive(pCamhandle);
     return (ret == QHYCCD_SUCCESS);
 }
 
 bool CameraQHYCCD::getImage(uint32_t& w, uint32_t& h, uint32_t& bpp, uint32_t& channels, uint8_t* imgdata) {
+    if(!mParams.isConnected)
+        throw std::logic_error("Camera is not connected");
+
     uint32_t ret = 0;
-    if(mParams.mIsLiveMode)
+    if(mParams.isLiveMode)
         ret = GetQHYCCDLiveFrame(pCamhandle, &w, &h, &bpp, &channels, imgdata);
     else
         ret = GetQHYCCDSingleFrame(pCamhandle, &w, &h, &bpp, &channels, imgdata);
@@ -205,18 +269,18 @@ bool CameraQHYCCD::getImage(uint32_t& w, uint32_t& h, uint32_t& bpp, uint32_t& c
 }
 
 CameraQHYCCD::~CameraQHYCCD() {
-    if(mParams.mIsConnected)
+    if(mParams.isConnected)
         disconnect();
 }
 
 bool CameraQHYCCD::disconnect() {
-    if(mParams.mIsLiveMode)
+    if(mParams.isLiveMode)
         stopLiveCapture();
     else
         stopSingleCapture();
 
     uint32_t ret = CloseQHYCCD(pCamhandle);
-    mParams.mIsConnected = false;
+    mParams.isConnected = false;
     return (ret == QHYCCD_SUCCESS);
 }
 

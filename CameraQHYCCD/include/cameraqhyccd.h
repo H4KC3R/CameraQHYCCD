@@ -13,7 +13,7 @@ private:
     CamParameters mParams;
 
 public:
-    CameraQHYCCD(char* id);
+    CameraQHYCCD(std::string id);
 
     ~CameraQHYCCD();
 
@@ -21,7 +21,7 @@ public:
 
     static int32_t searchCamera();
 
-    static bool getID(int32_t num, char* id);
+    static std::string getID(int32_t num);
 
     static std::string getModel(char* id);
 
@@ -37,9 +37,9 @@ public:
 
     uint32_t getImageBitMode();
 
-    bool setFps(double fps);
+    bool setUsbTraffic(double value);
 
-    double getFps(void);
+    double getUsbTraffic(void);
 
     bool setGain(double gain);
 

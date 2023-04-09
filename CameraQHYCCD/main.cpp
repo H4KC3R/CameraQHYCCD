@@ -73,9 +73,9 @@ void cameraExample(int32_t cameraMode){
     int num = 0;
     num = CameraQHYCCD::searchCamera();
     if(num >= 1) {
-        char id[32];
         cout << "Camera found: " << num << endl;
-        if(!CameraQHYCCD::getID(0,id)) {
+        std::string id = CameraQHYCCD::getID(0);
+        if(id.empty()) {
             cout << "ID getting fail" << endl;
             return;
         }
@@ -118,12 +118,12 @@ void cameraExample(int32_t cameraMode){
         else
             cout << "transferbit is not available in this camera" << endl;
 
-        if (myCamera->getControlMinMaxStep(fps, min, max, step))
+        if (myCamera->getControlMinMaxStep(usbTraffic, min, max, step))
             cout << "usbtraffic max: " << max << " " << "usbtraffic min: " << min << " " << "usbtraffic step: " << step << " " << endl;
         else
             cout << "usbtraffic is not available in this camera" << endl;
 
-        cout << "FPS: " << myCamera->getFps() << endl;
+        cout << "FPS: " << myCamera->getUsbTraffic() << endl;
         cout << "Exposure: " << myCamera->getExposure() << " ms" << endl;
         cout << "Gain: " << myCamera->getGain() << endl;
         cout << "Bit:  " << myCamera->getImageBitMode() << endl;
@@ -153,11 +153,11 @@ void cameraExample(int32_t cameraMode){
         cout << "SizeY:  " << sizeY << endl;
 
         CamParameters params = myCamera->getCameraParameters();
-        uint32_t length = params.mMaximgh * params.mMaximgw * 2;
+        uint32_t length = params.maximgh * params.maximgw * 2;
         CamFrame frame;
         frame.allocateFrame(length);
 
-        if(!params.mIsMono){
+        if(!params.isMono){
             cv::namedWindow("Camera image", cv::WINDOW_NORMAL);
             cv::resizeWindow("Camera image", 600, 600);
 
@@ -171,7 +171,7 @@ void cameraExample(int32_t cameraMode){
             cv::resizeWindow("GrayScale image", 600, 600);
         }
 
-        if(!(params.mIsLiveMode)){
+        if(!(params.isLiveMode)){
             if(myCamera->startSingleCapture()) {
                 myCamera->getImage(frame.mWidth, frame.mHeight, frame.mBpp,
                                    frame.mChannels, frame.pData);
@@ -186,7 +186,7 @@ void cameraExample(int32_t cameraMode){
                 cv::Mat camImg(frame.mHeight, frame.mWidth, type, frame.pData);
                 cv::imshow("Camera image", camImg);
 
-                if(!params.mIsMono){
+                if(!params.isMono){
                     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
                     ImageProcess::debayerImg(camImg, camImg);
                     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
@@ -226,7 +226,7 @@ void cameraExample(int32_t cameraMode){
                     cv::imshow("Camera image", camImg);
                     cv::waitKey(100);
 
-                    if(!params.mIsMono){
+                    if(!params.isMono){
                         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
                         ImageProcess::debayerImg(camImg, camImg);
                         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
@@ -293,9 +293,11 @@ void findFocus(){
     if(num < 1)
         return;
 
-    char id[32];
-    if(!CameraQHYCCD::getID(0,id))
+    std::string id = CameraQHYCCD::getID(0);
+    if(id.empty()) {
+        cout << "ID getting fail" << endl;
         return;
+    }
 
     myCamera = new CameraQHYCCD(id);
     myCamera->connect(live);
@@ -408,9 +410,12 @@ void testCameraMultithreading() {
     if(num < 1)
         return;
 
-    char id[32];
-    if(!CameraQHYCCD::getID(0,id))
+    std::string id = CameraQHYCCD::getID(0);
+    if(id.empty()) {
+        cout << "ID getting fail" << endl;
         return;
+    }
+
     myCamera = new CameraQHYCCD(id);
     myCamera->connect((StreamMode)live);
     myCamera->setExposure(10);
@@ -418,7 +423,7 @@ void testCameraMultithreading() {
     myCamera->setImageBitMode(bit8);
 
     CamParameters params = myCamera->getCameraParameters();
-    uint32_t length = params.mMaximgh * params.mMaximgw * 2;
+    uint32_t length = params.maximgh * params.maximgw * 2;
     CamFrame frame;
     frame.allocateFrame(length);
 

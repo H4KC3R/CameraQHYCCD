@@ -27,10 +27,10 @@ void FocusingFSM::focus(double sharpness) {
 void FocusingFSM::stopFocus() {
     mState = notFocused;
     firstLocalMax = 0;
-    rightSidePosition = 0;
+    firstSidePosition = 0;
 
     secondLocalMax = -1;
-    leftSidePosition = 0;
+    secondSidePosition = 0;
 
     absoluteMax = 0;
     absoluteMaxPosition = 0;
